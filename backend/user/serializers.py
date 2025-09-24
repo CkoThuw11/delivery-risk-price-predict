@@ -1,9 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth import authenticate
-from .models import User   # import User model bạn đã tạo ở BE_01
+from .models import User   
 
-
-# Serializer cho đăng ký
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
 
@@ -22,21 +20,20 @@ class RegisterSerializer(serializers.ModelSerializer):
         return user
 
 
-# Serializer cho đăng nhập
 class LoginSerializer(serializers.Serializer):
-    email = serializers.EmailField()
+    username_or_email = serializers.CharField()
     password = serializers.CharField(write_only=True)
 
     def validate(self, data):
-        email = data.get("email")
+        username_or_email = data.get("email")
         password = data.get("password")
 
-        if email and password:
-            user = authenticate(username=email, password=password)
+        if username_or_email and password:
+            user = authenticate(username= username_or_email, password=password)
             if not user:
-                raise serializers.ValidationError("Sai email hoặc mật khẩu")
+                raise serializers.ValidationError("Wrong information")
         else:
-            raise serializers.ValidationError("Phải nhập cả email và mật khẩu")
+            raise serializers.ValidationError("Must have both user/email and password")
 
         data['user'] = user
         return data
