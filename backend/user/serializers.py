@@ -21,19 +21,25 @@ class RegisterSerializer(serializers.ModelSerializer):
 
 
 class LoginSerializer(serializers.Serializer):
-    username_or_email = serializers.CharField()
+    username = serializers.CharField()
+    email = serializers.EmailField()
     password = serializers.CharField(write_only=True)
 
     def validate(self, data):
-        username_or_email = data.get("email")
+        email = data.get("email")
+        username = data.get("username")
         password = data.get("password")
 
-        if username_or_email and password:
-            user = authenticate(username= username_or_email, password=password)
-            if not user:
-                raise serializers.ValidationError("Wrong information")
-        else:
-            raise serializers.ValidationError("Must have both user/email and password")
+        if not (username and email and password):
+            raise serializers.ValidationError("Must provide username, email, and password")
+        # tìm user khớp cả username & email
+        user = User.objects.filter(username=username, email__iexact=email).first()
+
+        if not user or not user.check_password(password):
+            raise serializers.ValidationError("Wrong username, email or password")
+
+        if not user.is_active:
+            raise serializers.ValidationError("This account is disabled")
 
         data['user'] = user
         return data
