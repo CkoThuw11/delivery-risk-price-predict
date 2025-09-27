@@ -1,5 +1,3 @@
-from django.shortcuts import render
-from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 from rest_framework.authtoken.models import Token
@@ -7,10 +5,10 @@ from user.serializers import LoginSerializer, RegisterSerializer
 from rest_framework import status
 from rest_framework.viewsets import ViewSet
 from .models import User
-# Create your views here.
 
-class LoginAPIView(APIView):
-    permission_classes = [AllowAny]  #này theo t hiểu là ai cũng login được, có thể mở rộng nếu sau này chia ra admin và staff
+
+class LoginView(ViewSet):
+    permission_classes = [AllowAny]  
 
     def post(self, request):
         serializer = LoginSerializer(data=request.data)
@@ -22,12 +20,16 @@ class LoginAPIView(APIView):
             return Response({
                 "success": True,
                 "token": token.key,
-
-from user.serializers import RegisterSerializer
-from rest_framework import status
-from rest_framework.response import Response
-from rest_framework.viewsets import ViewSet
-from .models import User
+                "user": {
+                    "id": user.id,
+                    "username": user.username,
+                    "email": user.email,
+                    "firstname": getattr(user, "firstname", ""),
+                    "lastname": getattr(user, "lastname", ""),
+                    "date_joined": user.date_joined,
+                }
+            }, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class RegisterView(ViewSet):
     '''
@@ -50,14 +52,6 @@ class RegisterView(ViewSet):
                     "id": user.id,
                     "username": user.username,
                     "email": user.email,
-
-                    "firstname": getattr(user, "firstname", ""),
-                    "lastname": getattr(user, "lastname", ""),
-                    "date_joined": user.date_joined,
-                }
-            }, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
                     "firstname": user.firstname,
                     "lastname": user.lastname,
                 },
