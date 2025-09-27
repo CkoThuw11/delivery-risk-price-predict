@@ -7,6 +7,8 @@ from user.serializers import LoginSerializer, RegisterSerializer
 from rest_framework import status
 from rest_framework.viewsets import ViewSet
 from .models import User
+from django.contrib.auth import logout
+from rest_framework.permissions import IsAuthenticated
 # Create your views here.
 
 class LoginAPIView(APIView):
@@ -22,12 +24,17 @@ class LoginAPIView(APIView):
             return Response({
                 "success": True,
                 "token": token.key,
+                "user": {
+                    "id": user.id,
+                    "username": user.username,
+                    "email": user.email,
+                    "firstname": getattr(user, "firstname", ""),
+                    "lastname": getattr(user, "lastname", ""),
+                    "date_joined": user.date_joined,
+                }
+            }, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-from user.serializers import RegisterSerializer
-from rest_framework import status
-from rest_framework.response import Response
-from rest_framework.viewsets import ViewSet
-from .models import User
 
 class RegisterView(ViewSet):
     '''
@@ -50,17 +57,16 @@ class RegisterView(ViewSet):
                     "id": user.id,
                     "username": user.username,
                     "email": user.email,
-
-                    "firstname": getattr(user, "firstname", ""),
-                    "lastname": getattr(user, "lastname", ""),
-                    "date_joined": user.date_joined,
-                }
-            }, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
                     "firstname": user.firstname,
                     "lastname": user.lastname,
                 },
             },
             status = status.HTTP_201_CREATED,
         )
+
+class LogoutView(APIView):
+    permission_classes = [IsAuthenticated]  # chỉ user đã login mới logout
+    def post(self, request):
+        # Xóa session hiện tại
+        logout(request)
+        return Response({"message": "Logout successful"}, status=status.HTTP_200_OK)
