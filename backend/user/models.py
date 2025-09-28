@@ -5,9 +5,9 @@ from django.utils import timezone
 class UserManager(BaseUserManager):
     def create_user(self, email, username, password=None, **extra_fields):
         if not email:
-            raise ValueError("Người dùng phải có email")
+            raise ValueError("user must have email")
         if not user:
-            raise ValueError("Người dùng phải có username")
+            raise ValueError("user must have username")
         email = self.normalize_email(email)
         user = self.model(email=email, username=username, **extra_fields)
         user.set_password(password) 
