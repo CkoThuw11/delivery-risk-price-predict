@@ -5,6 +5,10 @@ from user.serializers import LoginSerializer, RegisterSerializer
 from rest_framework import status
 from rest_framework.viewsets import ViewSet
 from .models import User
+from django.contrib.auth import logout
+from rest_framework.permissions import IsAuthenticated
+# Create your views here.
+
 
 
 class LoginView(ViewSet):
@@ -58,3 +62,10 @@ class RegisterView(ViewSet):
             },
             status = status.HTTP_201_CREATED,
         )
+
+class LogoutView(APIView):
+    permission_classes = [IsAuthenticated]  # chỉ user đã login mới logout
+    def post(self, request):
+        # Xóa session hiện tại
+        logout(request)
+        return Response({"message": "Logout successful"}, status=status.HTTP_200_OK)
