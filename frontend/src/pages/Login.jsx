@@ -70,7 +70,7 @@ function LoginPage() {
                 name="username"
                 value={formData.username}
                 onChange={handleChange}
-                placeholder="Enter your username"
+                placeholder="Enter your username/email"
                 className="w-full px-4 py-2 border rounded-lg bg-gray-100 text-black"
               />
             </div>
