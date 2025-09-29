@@ -1,5 +1,30 @@
+@import "tailwindcss";
+@import url("assets/css/font.css");
+
+@font-face {
+    font-family: "Inria Sans";
+    src: url("assets/fonts/InriaSans-Regular.ttf") format("truetype");
+}
+
+@font-face {
+    font-family: "Inria Sans Bold";
+    src: url("assets/fonts/InriaSans-Bold.ttf") format("truetype");
+}
+
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+
+  --primary-color-1: #618264;
+  --secondary-color-1: #79AC78;
+  --accent-color-1: #B0D9B1;
+  --neutral-color-1: #D0E7D2;
+
+  --primary-color-2: #EDE8DC;
+  --secondary-color-2: #A5B68D;
+  --accent-color-2: #D0E7D2;
+  --neutral-color-2: #C1CFA1;
+
+
+  font-family: 'Inria Sans', Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
 
@@ -24,10 +49,9 @@ a:hover {
 
 body {
   margin: 0;
-  display: flex;
-  place-items: center;
   min-width: 320px;
   min-height: 100vh;
+  font-family: "Inria Sans",Arial, Helvetica, sans-serif;
 }
 
 h1 {
@@ -65,4 +89,45 @@ button:focus-visible {
   button {
     background-color: #f9f9f9;
   }
+}
+
+.color-primary-1 {
+  color: var(--primary-color-1);
+}
+
+.color-secondary-1 {
+  color: var(--secondary-color-1);
+} 
+
+.bg-secondary-1 {
+  background-color: var(--secondary-color-1);
+}
+
+.color-accent-1 {
+  color: var(--accent-color-1);
+} 
+
+
+.bg-accent-1 {
+  background-color: var(--accent-color-1);
+} 
+
+.color-neutral-1 {
+  color: var(--neutral-color-1);
+} 
+
+.color-primary-2 {
+  color: var(--primary-color-2);
+}
+
+.font-bold {
+  font-family: "Inria Sans Bold",Arial, Helvetica, sans-serif;
+}
+
+.hover-bg-color-primary-1:hover {
+  background-color: var(--primary-color-1)
+}
+
+.hover-color-primary-1:hover {
+  color: var(--primary-color-1)
 }
