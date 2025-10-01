@@ -24,12 +24,11 @@ class LoginView(APIView):
                 "success": True,
                 "token": token.key,
                 "user": {
-                    "id": user.id,
                     "username": user.username,
                     "email": user.email,
                     "firstname": getattr(user, "firstname", ""),
                     "lastname": getattr(user, "lastname", ""),
-                    "date_joined": user.date_joined,
+                    "date_joined": user.date_joined
                 }
             }, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -39,20 +38,16 @@ class RegisterView(APIView):
     Input: username, email, firstname, lastname, and password
     Ouput: message, user infor (except password), and status
     '''
-    queryset = User.objects.all()
-    serializer_class = RegisterSerializer
-    
-    def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data = request.data)
+    permission_classes = [AllowAny]
+    def post(self, request, *args, **kwargs):
+        serializer = RegisterSerializer(data = request.data)
         serializer.is_valid(raise_exception = True)
-
         user = serializer.save()
 
         return Response (
             {
                 "message": "User registered successfully",
                 "user": {
-                    "id": user.id,
                     "username": user.username,
                     "email": user.email,
                     "firstname": user.firstname,
