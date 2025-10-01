@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth import authenticate
 from .models import User   
-
+from django.db import models
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
 
@@ -21,22 +21,27 @@ class RegisterSerializer(serializers.ModelSerializer):
 
 
 class LoginSerializer(serializers.Serializer):
-    username = serializers.CharField()
-    email = serializers.EmailField()
+    user_or_email = serializers.CharField(required=True)
     password = serializers.CharField(write_only=True)
 
     def validate(self, data):
-        email = data.get("email")
-        username = data.get("username")
+        user_or_email = data.get("user_or_email")
         password = data.get("password")
 
-        if not (username and email and password):
-            raise serializers.ValidationError("Must provide username, email, and password")
-        # tìm user khớp cả username & email
-        user = User.objects.filter(username=username, email__iexact=email).first()
-
+        if not user_or_email:
+            raise serializers.ValidationError("Username or email is required")
+        if not password:
+            raise serializers.ValidationError("Password is required")
+        
+        user = None
+        
+        user = User.objects.filter(
+            models.Q(username=user_or_email) | 
+            models.Q(email__iexact=user_or_email)
+        ).first()
+        
         if not user or not user.check_password(password):
-            raise serializers.ValidationError("Wrong username, email or password")
+            raise serializers.ValidationError("Invalid credentials")
 
         if not user.is_active:
             raise serializers.ValidationError("This account is disabled")
