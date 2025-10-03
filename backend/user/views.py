@@ -41,21 +41,21 @@ class RegisterView(APIView):
     permission_classes = [AllowAny]
     def post(self, request, *args, **kwargs):
         serializer = RegisterSerializer(data = request.data)
-        serializer.is_valid(raise_exception = True)
-        user = serializer.save()
-
-        return Response (
-            {
-                "message": "User registered successfully",
-                "user": {
-                    "username": user.username,
-                    "email": user.email,
-                    "firstname": user.firstname,
-                    "lastname": user.lastname,
+        if serializer.is_valid():
+            user = serializer.save()
+            return Response (
+                {
+                    "message": "User registered successfully",
+                    "user": {
+                        "username": user.username,
+                        "email": user.email,
+                        "firstname": user.firstname,
+                        "lastname": user.lastname,
+                    },
                 },
-            },
-            status = status.HTTP_201_CREATED,
-        )
+                status = status.HTTP_201_CREATED,
+            )
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class LogoutView(APIView):
     permission_classes = [IsAuthenticated]  # chỉ user đã login mới logout
