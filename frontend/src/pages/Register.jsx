@@ -2,8 +2,6 @@ import { useState } from "react";
 import Input from "../components/ui/Input";
 import { useNavigate } from "react-router-dom";
 
-const BACKEND_URL = "https://testproject.free.beeceptor.com"
-
 function SignupPage() {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({ 
@@ -15,13 +13,14 @@ function SignupPage() {
     repeatPassword: "" 
   });
   const [errors, setErrors] = useState({});
-
+  const [registerError, setReigsterError] = useState("");
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
     if (errors[name]) {
       setErrors(prev => ({ ...prev, [name]: "" }));
     }
+    if (registerError) setReigsterError("");
   };
 
   const handleSubmit = async (e) => {
@@ -52,7 +51,7 @@ function SignupPage() {
       
       const { repeatPassword, ...apiData } = formData;
       
-      const response = await fetch(BACKEND_URL + "/signup", {
+      const response = await fetch("http://127.0.0.1:8000/user/signup/", {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -61,7 +60,15 @@ function SignupPage() {
       });
 
       const data = await response.json();
-      navigate("/mainpage");
+
+      if (response.status === 201) {
+        console.log("User information: ", data);
+      }
+      else{
+        console.log("Error");
+        setReigsterError(data?.detail || "Register failed. somethings wrong.");
+      }
+      navigate("/login");
       
     } catch (error) {
       console.error("Error signing up: " + error);
@@ -86,7 +93,7 @@ function SignupPage() {
     <div className="min-h-screen flex">
       {/* Left Section */}
       <div className="flex-1 bg-accent-1 flex flex-col justify-center items-center p-8">
-        <h2 className="text-8xl font-bold color-primary-2 max-w-125 text-center">Welcome<br />Back!</h2>
+        <h2 className="text-8xl font-bold color-primary-2 max-w-125">Welcome Back!</h2>
         <div className="mt-5">
           {/* Placeholder for image */}
           <img
@@ -100,7 +107,10 @@ function SignupPage() {
       {/* Right Section */}
       <div className="flex-1 flex justify-center items-center bg-white p-8">
         <div className="w-full max-w-md flex-col flex justify-center">
-          <h2 className="text-4xl self-center font-bold color-primary-1 mb-8">Sign up</h2>
+          {registerError && (
+            <p className="text-red-500 text-sm mt-2 text-center">{registerError}</p>
+          )}
+          <h2 className="text-7xl self-center font-bold color-primary-1 mb-8">Sign up</h2>
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* First Name & Last Name */}
             <div className="grid grid-cols-2 gap-4">
@@ -234,7 +244,9 @@ function SignupPage() {
           {/* Login Link */}
           <p className="mt-6 text-center text-sm text-gray-600">
             Already have an account?{" "}
-            <a href="#" className="color-secondary-1 font-medium hover:underline hover-color-primary-1" onClick={() => navigate("/login")}>
+            <a href="#" className="color-secondary-1 font-medium hover:underline hover-color-primary-1" onClick={(e) => {
+              e.preventDefault();
+              navigate("/login")}}>
               Login Now
             </a>
           </p>
