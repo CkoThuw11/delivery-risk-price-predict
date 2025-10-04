@@ -1,4 +1,4 @@
-# Backend Setup (Django)
+# Backend Setup 
 
 ## Navigate to the project directory
 ```bash
@@ -19,11 +19,6 @@ venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-## Set up the Django project
-```bash
-django-admin startproject backend
-```
-
 ## Run the Django development server:
 ```bash
 cd backend
@@ -36,23 +31,24 @@ The backend server will be available at http://localhost:8000.
 cd ..
 ```
 
-# Create a React app 
-```bash
-npm create vite@latest frontend -- --template react
-```
-Framework --> React
-Variant --> Javascript
-
+# Frontend Setup
 ## Navigate to the frontend directory and install dependencies:
 ```bash
 cd frontend
 npm install
 ```
+## Countinue run the following command
+```bash
+npm install @tailwindcss/vite react react-dom react-router-dom tailwindcss
+```
 ## Run the React development server:
 ```bash
 npm run dev
 ```
-
+NOTE: MAKE SURE YOU HAVE ALREADY INSTALL Nodejs 
 The frontend server will be available at http://localhost:5173
 
-NOTE: MAKE SURE YOU HAVE ALREADY INSTALL Nodejs 
+# Database Setup
+Copy scripts in setup_database.sql --> Running it within MySQL Workbench
+
+Don't hesitate to ask for help if you need 
