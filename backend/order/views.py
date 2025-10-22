@@ -1,7 +1,7 @@
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.views import APIView
-from django.db.models import Sum
+from django.db.models import Sum, Count, Q
 from order.models import OrderRecord
 
 class SalesByPayment(APIView):
@@ -89,6 +89,54 @@ class SalesByRegion(APIView):
                         "label": "region",
                         "value": "total_sales",
                         "unit": "USD",
+                        "filter_field": "market",
+                        "default_filter": "Africa",
+                        "data": data_by_market
+                    }
+                }
+            }
+
+            return Response(response_data, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+class LateDeliveryByRegion(APIView):
+    def get(self, request):
+        try:
+            queryset = (
+                OrderRecord.objects
+                .values("Market", "Order_Region")
+                .annotate(
+                    total_deliveries = Count("id"),
+                    late_deliveries = Count("id", filter = Q(Late_delivery_risk = 1))
+                )
+                .order_by("Market", "Order_Region" )
+            )
+            data_by_market = {}
+            for entry in queryset:
+                market = entry["Market"]
+                region = entry["Order_Region"]
+                total = entry["total_deliveries"]
+                late = entry["late_deliveries"]
+
+                late_rate = late/total if total > 0 else 0
+
+                if market not in data_by_market:
+                    data_by_market[market] = []
+                
+                data_by_market[market].append({
+                    "region": region,
+                    "late_rate": round(late_rate, 2)
+                })
+
+            response_data = {
+                "charts": {
+                    "late_delivery_rate_by_region": {
+                        "chart_type": "bar",
+                        "label": "region",
+                        "value": "late_rate",
+                        "unit": "percentage",
                         "filter_field": "market",
                         "default_filter": "Africa",
                         "data": data_by_market
