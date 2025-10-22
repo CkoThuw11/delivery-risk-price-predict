@@ -21,7 +21,7 @@ class SalesByPayment(APIView):
                 "charts": {
                     "revenue_by_payment_method": {
                         "chart_type": "bar",
-                        "label": "payment_method",
+                        "label": "Type",
                         "value": "total_sales",
                         "unit": "USD",
                         "data": data_list
@@ -32,3 +32,31 @@ class SalesByPayment(APIView):
             return Response(response_data, status=status.HTTP_200_OK)
         except Exception as e:
                return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class SalesByMarket(APIView):
+     
+    def get(self, request):
+        try:
+            queryset = (
+                OrderRecord.objects
+                .values("Market")
+                .annotate(total_sales=Sum("Sales"))
+                .order_by('-total_sales')
+            )
+
+            data_list = list(queryset)
+
+            response_data = {
+                "charts": {
+                    "revenue_by_market": {
+                        "chart_type": "pie",
+                        "label": "Market",
+                        "value": "total_sales",
+                        "unit": "USD",
+                        "data": data_list
+                    }
+                }
+            }
+            return Response(response_data, status=status.HTTP_200_OK)
+        except Exception as e:
+             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
