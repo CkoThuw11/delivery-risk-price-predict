@@ -148,4 +148,32 @@ class LateDeliveryByRegion(APIView):
 
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        
+
+class OrdersByShippingmode(APIView):
+    def get(self, request):
+        try:
+            queryset = (
+                OrderRecord.objects
+                .values("Shipping_Mode")
+                .annotate(
+                    total_orders = Count("Order_Id"),
+                )
+            )
+
+            ordersbyshippingmode=[{"ShippingMode":r["Shipping_Mode"],"Orders":r["total_orders"]} for r in queryset]
+
+            response_data = {
+                "charts": {
+                    "shipping_mode_distribution": {
+                    "chart_type": "pie",
+                    "label": "ShippingMode",
+                    "value": "Orders",
+                    "unit": "",
+                    "data": [ordersbyshippingmode]
+                    }
+                }
+            }
+            return Response(response_data, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
