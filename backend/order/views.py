@@ -148,4 +148,37 @@ class LateDeliveryByRegion(APIView):
 
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        
+    
+class DeliveryPerformancebyCategories(APIView):
+    def get(self, request):
+        try:
+            queryset = (
+                OrderRecord.objects
+                .values("Category_Name")
+                .annotate(
+                    total_on_time=Count("Late_delivery_risk",filter=Q(Late_delivery_risk=0)),
+                    total_late=Count("Late_delivery_risk",filter=Q(Late_delivery_risk=1)),
+                    total_sales=Sum("Sales")
+                )
+                .order_by("-total_sales")[:10]
+            )
+            data=[{
+                    "cateogory_name": r["Category_Name"],  "On_Time": r["total_on_time"], 
+                    "Late": r["total_late"] } for r in queryset]
+
+            response_data = {
+                "charts": {
+                    "category_delivery_status": {
+                    "chart_type": "bar",
+                    "label": "category_name",
+                    "value": ["On_Time", "Late"],
+                    "unit": "orders",
+                    "stacked": True,
+                    "data": [data]
+                    }
+                }   
+            }
+            return Response(response_data, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
