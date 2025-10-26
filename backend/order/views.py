@@ -18,7 +18,6 @@ class DashboardOverviewAPIView(APIView):
                 total_orders=Count("Order_Item_Id"),
                 total_customers=Count("Customer_Id", distinct=True),
                 total_profit=Sum("Benefit_per_order"),
-                avg_late_rate=Avg("Late_delivery_risk")  # nếu bạn có cột này
             )
         #=========revenue_over_time(Linechart)=========#
             revenue_over_time = (
@@ -74,7 +73,7 @@ class DashboardOverviewAPIView(APIView):
             )
 
             top_10_sales_region_data=[
-                {"product": p["Order_Region"], "sales": p["total_sales"]}for p in top_10_sales_region
+                {"region": p["Order_Region"], "sales": p["total_sales"]}for p in top_10_sales_region
             ]
             
 
@@ -89,42 +88,41 @@ class DashboardOverviewAPIView(APIView):
                     "total_orders": kpi_cards["total_orders"],
                     "total_customers": kpi_cards["total_customers"],
                     "total_profit": kpi_cards["total_profit"],
-                    "late_rate": kpi_cards["avg_late_rate"]
                 },
                 "revenue_over_time":{
                     "chart_type":"line",
                     "x_axis": "month",
                     "y_axis": "sales",
                     "unit": "USD",
-                    "data":[revenue_over_time_data]
+                    "data":revenue_over_time_data
                 },
                 "sales_by_customer_group":{
                     "chart_type": "pie",
                     "label": "segment",
                     "value": "sales",
                     "unit": "USD",
-                    "data": [sales_by_customer_group_data]
+                    "data": sales_by_customer_group_data
                 },
-                "":{
+                "top_10_category":{
                     "chart_type": "bar",
-                    "label": "category_name",
+                    "label": "category",
                     "value": "sales",
                     "unit": "USD",
-                    "data": [top_10_products_data]
+                    "data": top_10_products_data
                 },
                 "late_risk_over_time": {
                     "chart_type": "line_area",
                     "x_axis": "month",
                     "y_axis": "late_rate",
-                    "unit": "percentage",
-                    "data": [late_risk_over_time_data]
+                    "unit": "",
+                    "data": late_risk_over_time_data
                 },
                 "top_10_sales_region":{
                     "chart_type": "bar_horizontal",
                     "label": "region",
                     "value": "sales",
                     "unit": "USD",
-                    "data": [top_10_sales_region_data]
+                    "data": top_10_sales_region_data
                 }
             }
 
