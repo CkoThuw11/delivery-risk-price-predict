@@ -59,24 +59,24 @@ h1 {
   line-height: 1.1;
 }
 
-button {
+/* button {
   border-radius: 8px;
   border: 1px solid transparent;
   padding: 0.6em 1.2em;
   font-size: 1em;
   font-weight: 500;
   font-family: inherit;
-  background-color: #1a1a1a;
   cursor: pointer;
   transition: border-color 0.25s;
-}
+} */
 button:hover {
-  border-color: #646cff;
+  cursor: pointer;
+  opacity: 0.8;
 }
-button:focus,
+/* button:focus,
 button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
-}
+} */
 
 @media (prefers-color-scheme: light) {
   :root {
@@ -93,6 +93,10 @@ button:focus-visible {
 
 .color-primary-1 {
   color: var(--primary-color-1);
+}
+
+.bg-primary-1 {
+  background-color: var(--primary-color-1);
 }
 
 .color-secondary-1 {
@@ -112,12 +116,28 @@ button:focus-visible {
   background-color: var(--accent-color-1);
 } 
 
+.bg-accent-2 {
+  background-color: var(--accent-color-2);
+} 
+
 .color-neutral-1 {
   color: var(--neutral-color-1);
 } 
 
+.bg-neutral-1 {
+  background-color: var(--neutral-color-1);
+} 
+
+.bg-neutral-2 {
+  background-color: var(--neutral-color-2);
+} 
+
 .color-primary-2 {
   color: var(--primary-color-2);
+}
+
+.bg-primary-2 {
+  background-color: var(--primary-color-2);
 }
 
 .font-bold {
