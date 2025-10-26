@@ -298,9 +298,9 @@ class DeliveryPerformancebyCategories(APIView):
                     "chart_type": "bar",
                     "label": "category_name",
                     "value": ["On_Time", "Late"],
-                    "unit": "orders",
+                    "unit": "order",
                     "stacked": True,
-                    "data": [data]
+                    "data": data
                     }
                 }   
             }
@@ -330,9 +330,9 @@ class DeliveryPerformanceByDepartments(APIView):
                         "chart_type": "bar",
                         "label":"department_name",
                         "value":["On_Time", "Late"],
-                        "unit": "orders",
+                        "unit": "order",
                         "stacked": True,
-                        "data": [data]
+                        "data": data
                     }
                 }   
             }
@@ -352,16 +352,16 @@ class OrdersByShippingmode(APIView):
                 )
             )
 
-            ordersbyshippingmode=[{"ShippingMode":r["Shipping_Mode"],"Orders":r["total_orders"]} for r in queryset]
+            ordersbyshippingmode=[{"ShippingMode":r["Shipping_Mode"],"orders":r["total_orders"]} for r in queryset]
 
             response_data = {
                 "charts": {
                     "shipping_mode_distribution": {
                     "chart_type": "pie",
                     "label": "ShippingMode",
-                    "value": "Orders",
-                    "unit": "",
-                    "data": [ordersbyshippingmode]
+                    "value": "orders",
+                    "unit": "order",
+                    "data": ordersbyshippingmode
                     }
                 }
             }
