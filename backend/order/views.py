@@ -277,10 +277,44 @@ class LateDeliveryByRegion(APIView):
 
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+class DeliveryPerformanceByDepartments(APIView):
+     def get(self, request):
+       try:
+            queryset = (
+                OrderRecord.objects
+                .values("Department_Name")
+                .annotate(
+                    total_on_time=Count("Late_delivery_risk",filter=Q(Late_delivery_risk=0)),
+                    total_late=Count("Late_delivery_risk",filter=Q(Late_delivery_risk=1))
+                )
+            )
+            data=[{
+                    "department_name": r["Department_Name"],  "On_Time": r["total_on_time"], 
+                    "Late": r["total_late"] } for r in queryset]
 
+            response_data = {
+                "charts": {
+                    "department_delivery_status": {
+                        "chart_type": "bar",
+                        "label":"department_name",
+                        "value":["On_Time", "Late"],
+                        "unit": "orders",
+                        "stacked": True,
+                        "data": [data]
+                    }
+                }   
+                .values("Shipping_Mode")
+                .annotate(
+                    total_orders = Count("Order_Id"),
+                )
+            )
+            return Response(response_data, status=status.HTTP_200_OK)
+       except Exception as e:
+             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)   
 class OrdersByShippingmode(APIView):
     def get(self, request):
-        try:
+       try:
             queryset = (
                 OrderRecord.objects
                 .values("Shipping_Mode")
@@ -304,5 +338,6 @@ class OrdersByShippingmode(APIView):
             }
             return Response(response_data, status=status.HTTP_200_OK)
 
-        except Exception as e:
-            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+       except Exception as e:
+             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)    
+
