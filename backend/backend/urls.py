@@ -20,4 +20,5 @@ from django.urls import path, include
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('user/', include('user.urls'), name ='User API'),
+    path('order/', include('order.urls'), name ='Order Records Statistic API')
 ]
