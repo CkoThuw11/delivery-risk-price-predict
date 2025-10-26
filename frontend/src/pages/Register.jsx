@@ -90,10 +90,11 @@ function SignupPage() {
   };
 
   return (
-    <div className="min-h-screen flex">
+    <div className="min-h-screen flex bg-white">
       {/* Left Section */}
-      <div className="flex-1 bg-accent-1 flex flex-col justify-center items-center p-8">
-        <h2 className="text-8xl font-bold color-primary-2 max-w-125">Welcome Back!</h2>
+      <div className="flex-1 bg-accent-1 flex flex-col justify-center items-center p-6 rounded-r-2xl w-159">
+        <h2 className="text-8xl font-bold color-primary-2 max-w-125 [text-shadow:2px_2px_4px_rgba(0,0,0,0.35)]">Welcome Back!</h2>
+        <div className="w-120 h-[1px] bg-primary-2 mt-4 "></div>
         <div className="mt-5">
           {/* Placeholder for image */}
           <img
@@ -105,7 +106,7 @@ function SignupPage() {
       </div>
 
       {/* Right Section */}
-      <div className="flex-1 flex justify-center items-center bg-white p-8">
+      <div className="flex-1 flex justify-center items-center bg-white p-6">
         <div className="w-full max-w-md flex-col flex justify-center">
           {registerError && (
             <p className="text-red-500 text-sm mt-2 text-center">{registerError}</p>
