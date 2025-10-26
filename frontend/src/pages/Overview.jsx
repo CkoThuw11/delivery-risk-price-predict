@@ -28,7 +28,7 @@ function Overview() {
         setLoading(true); // ✅ Bắt đầu tải dữ liệu, đặt loading = true
         setError(null);   // ✅ Reset lỗi cũ
 
-        const FAKE_API_URL = "https://41fb4659-98bc-4d14-845d-81d470ab634d.mock.pstmn.io/test";
+        const FAKE_API_URL = "http://127.0.0.1:8000/order/stats/orders/late-rate/";
         const response = await axios.get(FAKE_API_URL);
         console.log("Phản hồi axios nhận được:", response);
         console.log("Dữ liệu dashboard nhận được:", response.data);
@@ -66,7 +66,7 @@ function Overview() {
     kpi_cards,
     revenue_over_time,
     sales_by_customer_group,
-    top_10_products,
+    top_10_category,
     late_risk_over_time,
     top_10_sales_region,
     department_delivery_status,
@@ -163,7 +163,7 @@ function Overview() {
               {/*Sales by Category*/}
                  <div className="col-span-1 row-span-2 bg-transparent overflow-y-auto text-black flex justify-center items-center ml-5                                         ">
                    <Table 
-                     chartData={top_10_products}
+                     chartData={top_10_category}
 
                 />
               

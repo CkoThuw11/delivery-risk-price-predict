@@ -78,7 +78,7 @@ export default function PredictingPage() {
               </lable>
 
               <output id="result" class="border rounded-lg p-2 bg-white w-120 text-center">
-                ngoctranxinkdep
+                
               </output>
               
 
@@ -95,7 +95,7 @@ export default function PredictingPage() {
               </lable>
 
               <output id="result" class="border rounded-lg p-2 bg-white w-full min-h-28">
-                  ngoctranxinkdep
+                  
               </output>
 
             
