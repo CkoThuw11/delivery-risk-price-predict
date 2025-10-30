@@ -1,8 +1,10 @@
 export const cityCoordinates = {
-  "Los Angeles": { lat: 34.0522, lon: -118.2437 },
-  "New York": { lat: 40.7128, lon: -74.0060 },
-  "San Francisco": { lat: 37.7749, lon: -122.4194 },
-  "Ho Chi Minh City": { lat: 10.8231, lon: 106.6297 },
-  "Hanoi": { lat: 21.0278, lon: 105.8342 },
-  "Da Nang": { lat: 16.0471, lon: 108.2068 },
+  "Lancaster": {lat: 36.9775, lon: -92.475, state: "CA"},
+  "Richmond": {lat: 34.9545, lon: -86.9966, state: "IN" },
+  "Columbia": {lat: 35.4383, lon: -84.6179, state: "MO" },
+  "Newarkr": {lat: 40.3175, lon: -80.6176, state: "DE" },
+  "Antioch": {lat: 37.1120, lon: -107.2338, state: "CA" }
 };
+
+
+

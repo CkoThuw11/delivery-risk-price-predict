@@ -2,9 +2,15 @@ import React, { useState } from "react";
 import {TabButton} from "../components/ui/TabButton";
 import FormRow from "../components/ui/FormRow";
 import {cityCoordinates} from "../data/locationCoordinates"
+import geoData from "../data/geographic_input_data.json";
 
 export default function PredictingPage() {
   const [activeTab, setActiveTab] = useState("predicting");
+  const [countries, setCountries] = useState([]);
+  const [cities, setCities] = useState([]);
+  const [states, setStates] = useState([]);
+  const [predictionResult, setPredictionResult] = useState("");
+  const [recommendation, setRecommendation] = useState("");
 
   const [formData, setFormData] = useState({
     payment_type: "",
@@ -14,6 +20,7 @@ export default function PredictingPage() {
     order_region: "",
     order_country: "",
     order_city: "",
+    order_state:"",
     order_status: "",
     category_name: "",
     department_name: "",
@@ -38,17 +45,44 @@ export default function PredictingPage() {
   ];
 
   const orderStatuses = [
-    { value: "processing", label: "Processing" },
-    { value: "shipped", label: "Shipped" },
-    { value: "delivered", label: "Delivered" },
-    { value: "canceled", label: "Canceled" }
+    { value: "COMPLETE", label: "Complete" },
+    { value: "PENDING", label: "Pending" },
+    { value: "CLOSED", label: "Closed" },
+    { value: "PENDING_PAYMENT", label: "Pending Payment" },
+    { value: "CANCELED", label: "Canceled" },
+    { value: "PRCESSING", label: "Processing" },
+    { value: "SUSPECTED_FRAUDE", label: "Suspected Fraude" },
+    { value: "ON_HOLD", label: "On Hold" },
+    { value: "PAYMENT_REVIEW", label: "Payment Review" },
   ];
 
-// You can use cityCoordinates keys as dropdown values
-const cityOptions = Object.keys(cityCoordinates).map(city => ({
-  value: city,
-  label: city
-}));
+  const CategoryNames = [
+    { value: "Accessories", label: "Accessories" },
+    { value: "Baseball & Softball", label: "Baseball & Softball" },
+    { value: "Books ", label: "Books " },
+    { value: "Cameras", label: "Cameras" },
+    { value: "Children's Clothing", label: "Children's Clothing" },
+    { value: "Computers", label: "Computers" },
+    { value: "Garden", label: "Garden" },
+    { value: "Music", label: "Music" },
+  ]
+   const departmentNames = [
+    { value: "Fitness", label: "Fitness" },
+    { value: "Apparel", label: "Apparel" },
+    { value: "Golf", label: "Golf" },
+    { value: "Footwear", label: "Footwear" },
+    { value: "Outdoors", label: "Outdoors" },
+    { value: "Fan Shop", label: "Fan Shop" },
+    { value: "Technology", label: "Technology" },
+    { value: "Book Shop", label: "Book Shop" },
+    { value: "Discs Shop", label: "Discs Shop" },
+    { value: "Pet Shop", label: "Pet Shop" },
+    { value: "Health and Beauty", label: "Health and Beauty" },
+  ];
+  const cityOptions = Object.keys(cityCoordinates).map(city => ({
+    value: city,
+    label: city
+  }));
   const [coords, setCoords] = useState({
     latitude: null,
     longitude: null
@@ -59,11 +93,59 @@ const cityOptions = Object.keys(cityCoordinates).map(city => ({
     setFormData(prev => ({ ...prev, [name]: value }));
 
     if (name === "customer_city" || name === "order_city") {
-      const found = cityCoordinates[value];
-      if (found) {
-        setCoords({ latitude: found.lat, longitude: found.lon });
+      const cityInfo = cityCoordinates[value];
+      if (cityInfo) {
+        setCoords({ latitude: cityInfo.lat, longitude: cityInfo.lon });
+
+        const autoState = cityInfo.state || "";
+        if (name === "customer_city") {
+          setFormData(prev => ({ ...prev, customer_state: autoState }));
+        } else {
+          setFormData(prev => ({ ...prev, order_state: autoState }));
+        }
       }
     }
+
+    if (name === "order_region") {
+    const regionCountries = Object.keys(geoData[value] || {});
+    setCountries(regionCountries.map(c => ({ value: c, label: c })));
+
+    setCities([]);
+    setStates([]);
+
+    setFormData(prev => ({
+      ...prev,
+      order_country: "",
+      order_city: "",
+      order_state: ""
+    }));
+  }
+
+  // When selecting Country
+  if (name === "order_country") {
+    const region = formData.order_region;
+    const cityList = Object.keys(geoData[region][value] || {});
+    setCities(cityList.map(c => ({ value: c, label: c })));
+
+    setStates([]);
+
+    setFormData(prev => ({
+      ...prev,
+      order_city: "",
+      order_state: ""
+    }));
+  }
+
+  // When selecting City
+  if (name === "order_city") {
+    const { order_region, order_country } = formData;
+    const stateList = geoData[order_region][order_country][value] || [];
+
+    setStates(stateList.map(s => ({ value: s, label: s })));
+
+    setFormData(prev => ({ ...prev, order_state: "" }));
+  }
+
   };
 
   const handlePredict = async () => {
@@ -75,17 +157,30 @@ const cityOptions = Object.keys(cityCoordinates).map(city => ({
       }
     };
 
-    console.log("Request Payload:", payload);
-
-    const res = await fetch("http://localhost:8000/api/predict/", {
+    try {
+    const res = await fetch("http://localhost:8000/order/predicting/", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload)
     });
 
     const data = await res.json();
-    alert("Prediction: " + JSON.stringify(data));
-  };
+    console.log("Response:", data);
+
+    const label = data?.prediction?.label === "1" ? "Likely Late" : "On Time";
+    const prob = data?.prediction?.probability
+      ? (data.prediction.probability * 100).toFixed(2)
+      : null;
+
+    setPredictionResult(`${label} (${prob}%)`);
+    setRecommendation(data?.llm_suggestion || "No suggestion provided.");
+    
+  } catch (error) {
+    console.error(error);
+    setPredictionResult("Error predicting. Try again.");
+    setRecommendation("No recommendation due to error.");
+  }
+};
   return (
      <div className="min-h-screen bg-gray-50 flex flex-col">
       {/* Header Tabs */}
@@ -144,10 +239,12 @@ const cityOptions = Object.keys(cityCoordinates).map(city => ({
             />
 
             <FormRow
-              label="Customer State"
-              name="customer_state"
-              value={formData.customer_state}
+              label="Order Region"
+              name="order_region"
+              select
+              value={formData.order_region}
               onChange={handleChange}
+              options={Object.keys(geoData).map(r => ({ value: r, label: r }))}
             />
 
             <FormRow
@@ -156,14 +253,7 @@ const cityOptions = Object.keys(cityCoordinates).map(city => ({
               select
               value={formData.order_country}
               onChange={handleChange}
-              options={[ { value: "USA", label: "USA" }, { value: "VNM", label: "Vietnam" } ]}
-            />
-
-            <FormRow
-              label="Order Region"
-              name="order_region"
-              value={formData.order_region}
-              onChange={handleChange}
+              options={countries}
             />
 
             <FormRow
@@ -172,15 +262,18 @@ const cityOptions = Object.keys(cityCoordinates).map(city => ({
               select
               value={formData.order_city}
               onChange={handleChange}
-              options={cityOptions}
+              options={cities}
             />
 
             <FormRow
               label="Order State"
               name="order_state"
+              select
               value={formData.order_state}
               onChange={handleChange}
+              options={states}
             />
+
 
             <FormRow
               label="Order Status"
@@ -201,11 +294,7 @@ const cityOptions = Object.keys(cityCoordinates).map(city => ({
               select
               value={formData.category_name}
               onChange={handleChange}
-              options={[
-                { value: "Electronics", label: "Electronics" },
-                { value: "Clothing", label: "Clothing" },
-                { value: "Sports", label: "Sports" }
-              ]}
+              options={CategoryNames}
             />
 
             <FormRow
@@ -214,11 +303,7 @@ const cityOptions = Object.keys(cityCoordinates).map(city => ({
               select
               value={formData.department_name}
               onChange={handleChange}
-              options={[
-                { value: "Home", label: "Home" },
-                { value: "Fashion", label: "Fashion" },
-                { value: "Tech", label: "Tech" }
-              ]}
+              options={departmentNames}
             />
 
             <FormRow
@@ -272,7 +357,7 @@ const cityOptions = Object.keys(cityCoordinates).map(city => ({
           <div className="bg-white shadow rounded-lg p-5 border text-center">
             <h3 className="text-lg font-semibold text-gray-700 mb-2">Prediction Result</h3>
             <div id="result" className="border rounded-md bg-gray-50 p-5 text-lg font-medium text-gray-800">
-              HUHU
+              {predictionResult || "Awaiting prediction..."}
             </div>
           </div>
 
@@ -280,7 +365,7 @@ const cityOptions = Object.keys(cityCoordinates).map(city => ({
           <div className="bg-white shadow rounded-lg p-5 border">
             <h3 className="text-lg font-semibold text-gray-700 mb-2">Recommendation</h3>
             <div id="recommendation" className="border rounded-md bg-gray-50 p-5 min-h-[110px] text-gray-800">
-              HUHU
+              {recommendation || "No recommendation yet..."}
             </div>
           </div>
         </div>
