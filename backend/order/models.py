@@ -1,8 +1,14 @@
 from django.db import models
 
 
+class MLModel(models.Model):
+    name = models.CharField(max_length=255)
+    description = models.TextField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
 class OrderMachineLearning(models.Model):
     # Category variables
+    model = models.ForeignKey(MLModel, on_delete=models.CASCADE, related_name='orders',null=True,blank=True,default=None)
     department_name = models.CharField(max_length=100)
     category_name = models.CharField(max_length=100)
     customer_state = models.CharField(max_length=100)
@@ -127,3 +133,10 @@ class OrderRecord(models.Model):
     Shipping_Mode = models.CharField(max_length=100, blank=True, null=True)
 
 
+class EvaluationMetric(models.Model):
+    prediction= models.OneToOneField(OrderMachineLearning, on_delete=models.CASCADE, related_name='evaluation')
+    accuracy = models.FloatField()
+    precision = models.FloatField()
+    recall = models.FloatField()
+    f1_score = models.FloatField()
+    created_at = models.DateTimeField(auto_now_add=True)
