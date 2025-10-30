@@ -46,7 +46,7 @@ class DashboardOverviewAPIView(APIView):
                 OrderRecord.objects
                 .values("Category_Name") #nhóm data theo nhóm Customer
                 .annotate(total_sales=Sum("Sales")) #Tính thằng nào có doanh thu cao nhất
-                .order_by("-total_sales")[:10]
+                .order_by("-total_sales")
             )
 
             top_10_products_data=[
