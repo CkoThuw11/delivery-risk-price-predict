@@ -34,6 +34,11 @@ python manage.py makemigrations
 python manage.py migrate
 ```
 
+## Bulk Order records
+```bash
+python manage.py upload_records DataCoSupplyChainDataset.csv
+```
+
 ## Run the Django development server:
 ```bash
 cd backend
