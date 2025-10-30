@@ -1,13 +1,31 @@
-function FormRow({ label, select = false }) {
+function FormRow({ label, name, value, onChange, select = false, options = [] }) {
   return (
     <div className="flex items-center justify-between">
-      <label className="text-sm font-medium w-[35%]">{label}</label>
+      <label htmlFor={name} className="text-sm font-medium w-[35%]">
+        {label}
+      </label>
+
       {select ? (
-        <select className="w-[55%] border border-gray-400 rounded-sm p-[2px]">
-          <option></option>
+        <select
+          id={name}
+          name={name}
+          value={value}
+          onChange={onChange}
+          className="w-[55%] border border-gray-400 rounded-sm p-[2px]"
+        >
+          <option value="">Select {label}</option>
+          {options.map((opt) => (
+            <option key={opt.value} value={opt.value}>
+              {opt.label}
+            </option>
+          ))}
         </select>
       ) : (
         <input
+          id={name}
+          name={name}
+          value={value}
+          onChange={onChange}
           type="text"
           className="w-[55%] border border-gray-400 rounded-sm p-[2px]"
         />

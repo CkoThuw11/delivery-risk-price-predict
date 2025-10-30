@@ -1,3 +1,8 @@
+# Database Setup
+Copy scripts in setup_database.sql --> Running it within MySQL Workbench
+
+Don't hesitate to ask for help if you need 
+
 # Backend Setup 
 
 ## Navigate to the project directory
@@ -19,6 +24,16 @@ venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
+## Create Migrations
+```bash
+python manage.py makemigrations
+```
+
+## Apply Migrations
+```bash
+python manage.py migrate
+```
+
 ## Run the Django development server:
 ```bash
 cd backend
@@ -35,11 +50,10 @@ cd ..
 ## Navigate to the frontend directory and install dependencies:
 ```bash
 cd frontend
-npm install
 ```
 ## Countinue run the following command
 ```bash
-npm install @tailwindcss/vite react react-dom react-router-dom tailwindcss
+npm install
 ```
 ## Run the React development server:
 ```bash
@@ -47,8 +61,3 @@ npm run dev
 ```
 NOTE: MAKE SURE YOU HAVE ALREADY INSTALL Nodejs 
 The frontend server will be available at http://localhost:5173
-
-# Database Setup
-Copy scripts in setup_database.sql --> Running it within MySQL Workbench
-
-Don't hesitate to ask for help if you need 
