@@ -147,7 +147,7 @@ class SalesByPayment(APIView):
                 "charts": { 
                     "chart_type": "bar",
                     "label": "Type",
-                    "value": "total_sales",
+                    "value": ["total_sales"],
                     "unit": "USD",
                     "data": data_list
                 }
@@ -209,7 +209,7 @@ class SalesByRegion(APIView):
                 "charts": {
                     "chart_type": "bar",
                     "label": "region",
-                    "value": "total_sales",
+                    "value": ["total_sales"],
                     "unit": "USD",
                     "filter_field": "market",
                     "default_filter": "Africa",
@@ -255,7 +255,7 @@ class LateDeliveryByRegion(APIView):
                 "charts": {
                     "chart_type": "bar",
                     "label": "region",
-                    "value": "late_rate",
+                    "value": ["late_rate"],
                     "unit": "percentage",
                     "filter_field": "market",
                     "default_filter": "Africa",
