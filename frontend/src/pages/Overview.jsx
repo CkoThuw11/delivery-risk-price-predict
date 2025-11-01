@@ -1,26 +1,19 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { TabButton, TabStatistics } from "../components/ui/TabButton";
 import LineChart from "../components/Charts/LineChart";
 import HBarChart from "../components/Charts/HBarChart";
 import AreaChart from "../components/Charts/AreaChart";
 import Table from "../components/Charts/Table";
 import KPICard from "../components/Charts/KPICard";
 import PieChart from "../components/Charts/PieChart";
-import EPieChart from "../components/Charts/EPieChart";
-import BarChart from "../components/Charts/BarChart";
+import Loader from "../components/ui/Loading";
+import { snakeToTitle } from "../utils/formatString";
 
 function Overview() {
-  const [activeTab, setActiveTab] = useState("statistics");
-  const [activeTabStatistic, setActiveTabStatistic] = useState("overview");
   const [dashboard, setDashboard] = useState(null);
 
   const [loading, setLoading] = useState(true); // ✅ Thêm state loading
   const [error, setError] = useState(null); // ✅ Thêm state error
-
-  const navigate = useNavigate();
-
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -49,7 +42,7 @@ function Overview() {
   }, []);
 
   if (loading) {
-    return <div>Đang tải dữ liệu dashboard...</div>;
+    return <Loader />;
   }
 
   if (error) {
@@ -70,47 +63,7 @@ function Overview() {
   } = dashboard;
 
   return (
-    <div className="min-h-screen bg-[#ffffff] flex flex-col p-0">
-      {/* --- Header Tabs --- */}
-      <div className="flex items-center justify-center space-x-10 h-16 bg-secondary-1">
-        <TabButton
-          label="Statistics"
-          isActive={activeTab === "statistics"}
-          onClick={() => {
-            setActiveTab("statistics");
-            navigate("/mainpage");
-          }}
-        />
-        <TabButton
-          label="Predicting"
-          isActive={activeTab === "predicting"}
-          onClick={() => {
-            setActiveTab("predicting");
-            navigate("/predicting");
-          }}
-        />
-      </div>
-
-      <div className="flex items-center justify-center space-x-10 h-full bg-secondary-1 mt-2">
-        <TabStatistics
-          label="Overview"
-          isActive={activeTabStatistic === "overview"}
-          onClick={() => {
-            setActiveTabStatistic("overview");
-            navigate("/mainpage");
-          }}
-        />
-
-        <TabStatistics
-          label="Detail"
-          isActive={activeTabStatistic === "detail"}
-          onClick={() => {
-            setActiveTabStatistic("detail");
-            navigate("/statistics-detail");
-          }}
-        />
-      </div>
-
+    <>
       {/* --- Main layout --- */}
       <div className="flex flex-1 overflow-hidden mt-2">
         {/* ---Content Area --- */}
@@ -120,7 +73,7 @@ function Overview() {
           <div className="flex flex-row space-x-6 items-center justify-center bg- w-full h-1/4 p-4">
             {Object.entries(kpi_cards).map(([key, value]) => (
               <div key={key} className="bg-transparent h-full w-1/6 shadow-2xl">
-                <KPICard label={key} data={value} />
+                <KPICard label={snakeToTitle(key)} data={value} />
               </div>
             ))}
           </div>
@@ -160,7 +113,7 @@ function Overview() {
             {/* <div className="col-span-1 row-span-1 bg-white p-4 border-2 border-red-500 flex justify-center items-center  ">
               <BarChart name={"Top 10 products"} chartData={department_delivery_status} />
               </div>
- */}
+              */}
             <div className="col-span-1 row-span-1 bg-white p-4 border-2 border-red-500">
               <PieChart
                 name="Distribution of Sales by customer segment"
@@ -170,7 +123,8 @@ function Overview() {
           </div>
         </div>
       </div>
-    </div>
+      {/* </div> */}
+    </>
   );
 }
 

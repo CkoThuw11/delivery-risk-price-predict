@@ -1,20 +1,15 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
-import { TabButton, TabStatistics } from "../components/ui/TabButton";
 import BarChart from "../components/Charts/BarChart";
 import PieChart from "../components/Charts/PieChart";
 import { ChevronDownIcon } from "@heroicons/react/24/solid";
 import ChartMenu from "../components/ui/ChartMenu";
 
 function StatisticsDetail() {
-  const [activeTab, setActiveTab] = useState("statistics");
-  const [activeTabStatistic, setActiveTabStatistic] = useState("detail");
   const [activeChart, setActiveChart] = useState(null);
   const [chartData, setChartData] = useState(null);
   const [selectedMarket, setSelectedMarket] = useState(null);
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
 
   const fetchChartData = async (chartItem) => {
     if (!chartItem) return;
@@ -80,7 +75,7 @@ function StatisticsDetail() {
       },
       {
         name: "Delivery performance by top 10 departments",
-        api: "deliveryperformance-by-top10departments",
+        api: "deliveryperformance-by-top10-departments",
       },
       {
         name: "Delivery performance by top 10 categories",
@@ -114,47 +109,7 @@ function StatisticsDetail() {
   };
 
   return (
-    <div className="min-h-screen bg-[#ffffff] flex flex-col p-0">
-      {/* --- Header Tabs --- */}
-      <div className="flex items-center justify-center space-x-10 h-16 bg-secondary-1">
-        <TabButton
-          label="Statistics"
-          isActive={activeTab === "statistics"}
-          onClick={() => {
-            setActiveTab("statistics");
-            navigate("/mainpage");
-          }}
-        />
-        <TabButton
-          label="Predicting"
-          isActive={activeTab === "predicting"}
-          onClick={() => {
-            setActiveTab("predicting");
-            navigate("/predicting");
-          }}
-        />
-      </div>
-
-      <div className="flex items-center justify-center space-x-10 h-full bg-secondary-1 mt-2">
-        <TabStatistics
-          label="Overview"
-          isActive={activeTabStatistic === "overview"}
-          onClick={() => {
-            setActiveTabStatistic("overview");
-            navigate("/mainpage");
-          }}
-        />
-
-        <TabStatistics
-          label="Detail"
-          isActive={activeTabStatistic === "detail"}
-          onClick={() => {
-            setActiveTabStatistic("detail");
-            navigate("/statistics-detail");
-          }}
-        />
-      </div>
-
+    <>
       {/* --- Main layout --- */}
       <div className="flex flex-1 overflow-hidden mt-2">
         {/* --- Left Sidebar --- */}
@@ -200,7 +155,8 @@ function StatisticsDetail() {
           </div>
         </div>
       </div>
-    </div>
+      {/* </div> */}
+    </>
   );
 }
 
