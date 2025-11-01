@@ -282,7 +282,7 @@ class DeliveryPerformancebyCategories(APIView):
                 .order_by("-total_sales")[:10]
             )
             data=[{
-                    "cateogory_name": r["Category_Name"],  "On_Time": r["total_on_time"], 
+                    "category_name": r["Category_Name"],  "On_Time": r["total_on_time"], 
                     "Late": r["total_late"] } for r in queryset]
             response_data = {
                 "charts": {
