@@ -1,18 +1,15 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { TabButton } from "../components/ui/TabButton";
 import FormRow from "../components/ui/FormRow";
 import { cityCoordinates } from "../data/locationCoordinates";
 import geoData from "../data/geographic_input_data.json";
 
 export default function PredictingPage() {
-  const [activeTab, setActiveTab] = useState("predicting");
   const [countries, setCountries] = useState([]);
   const [cities, setCities] = useState([]);
   const [states, setStates] = useState([]);
   const [predictionResult, setPredictionResult] = useState("");
   const [recommendation, setRecommendation] = useState("");
-  const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
     payment_type: "",
@@ -182,32 +179,7 @@ export default function PredictingPage() {
     }
   };
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
-      {/* Header Tabs */}
-      <div className="flex items-center justify-center space-x-10 h-16 bg-primary-1 text-white shadow-sm">
-        <TabButton
-          label="Statistics"
-          isActive={activeTab === "statistics"}
-          onClick={() => {
-            setActiveTab("statistics");
-            navigate("/mainpage");
-          }}
-        />
-        <TabButton
-          label="Predicting"
-          isActive={activeTab === "predicting"}
-          onClick={() => {
-            setActiveTab("predicting");
-            navigate("/predicting");
-          }}
-        />
-      </div>
-
-      {/* Title */}
-      <div className="bg-primary-1 text-white text-center py-2 font-semibold">
-        Delivery Delay Predictor
-      </div>
-
+    <>
       <div className="p-6 space-y-6">
         {/* Input Section */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -356,7 +328,7 @@ export default function PredictingPage() {
         {/* Predict Button */}
         <div className="flex justify-center">
           <button
-            className="bg-primary-2 hover:bg-green-700 text-black font-bold px-10 py-3 rounded-md border border-black-500 shadow transition"
+            className="bg-secondary-1 hover:bg-green-700 text-white px-10 py-3 rounded-md shadow transition"
             onClick={handlePredict}
           >
             Predict
@@ -367,31 +339,31 @@ export default function PredictingPage() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-4">
           {/* Result */}
           <div className="bg-white shadow rounded-lg p-5 border text-center">
-            <h3 className="text-lg font-semibold text-gray-700 mb-2">
+            <h3 className="text-lg font-semibold text-black mb-2">
               Prediction Result
             </h3>
             <div
               id="result"
-              className="border rounded-md bg-gray-50 p-5 text-lg font-medium text-gray-800"
+              className="border border-black rounded-md bg-gray-50 p-5 text-gray-500 break-all"
             >
               {predictionResult || "Awaiting prediction..."}
             </div>
           </div>
 
           {/* Recommendation */}
-          <div className="bg-white shadow rounded-lg p-5 border">
-            <h3 className="text-lg font-semibold text-gray-700 mb-2">
+          <div className="bg-white shadow rounded-lg p-5 border text-center">
+            <h3 className="text-lg text-black mb-2 font-semibold">
               Recommendation
             </h3>
             <div
               id="recommendation"
-              className="border rounded-md bg-gray-50 p-5 min-h-[110px] text-gray-800"
+              className="border border-black rounded-md bg-gray-50 p-5 min-h-[110px] text-gray-500 break-all"
             >
               {recommendation || "No recommendation yet..."}
             </div>
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
