@@ -1,11 +1,10 @@
 import React, { useState } from "react";
-import {TabButton} from "../components/ui/TabButton";
+import { useNavigate } from "react-router-dom";
 import FormRow from "../components/ui/FormRow";
-import {cityCoordinates} from "../data/locationCoordinates"
+import { cityCoordinates } from "../data/locationCoordinates";
 import geoData from "../data/geographic_input_data.json";
 
 export default function PredictingPage() {
-  const [activeTab, setActiveTab] = useState("predicting");
   const [countries, setCountries] = useState([]);
   const [cities, setCities] = useState([]);
   const [states, setStates] = useState([]);
@@ -20,7 +19,7 @@ export default function PredictingPage() {
     order_region: "",
     order_country: "",
     order_city: "",
-    order_state:"",
+    order_state: "",
     order_status: "",
     category_name: "",
     department_name: "",
@@ -28,20 +27,20 @@ export default function PredictingPage() {
     order_item_discount_rate: "",
     order_item_product_price: "",
     order_item_quantity: "",
-    cost: ""
+    cost: "",
   });
   const paymentTypes = [
-  { value: "DEBIT", label: "Debit" },
-  { value: "CASH", label: "Cash" },
-  { value: "TRANSFER", label: "Transfer" },
-  { value: "PAYMENT", label: "Payment" }
-];
+    { value: "DEBIT", label: "Debit" },
+    { value: "CASH", label: "Cash" },
+    { value: "TRANSFER", label: "Transfer" },
+    { value: "PAYMENT", label: "Payment" },
+  ];
 
   const shippingModes = [
     { value: "Same Day", label: "Same Day" },
     { value: "First Class", label: "First Class" },
     { value: "Second Class", label: "Second Class" },
-    { value: "Standard Class", label: "Standard Class" }
+    { value: "Standard Class", label: "Standard Class" },
   ];
 
   const orderStatuses = [
@@ -65,8 +64,8 @@ export default function PredictingPage() {
     { value: "Computers", label: "Computers" },
     { value: "Garden", label: "Garden" },
     { value: "Music", label: "Music" },
-  ]
-   const departmentNames = [
+  ];
+  const departmentNames = [
     { value: "Fitness", label: "Fitness" },
     { value: "Apparel", label: "Apparel" },
     { value: "Golf", label: "Golf" },
@@ -79,18 +78,18 @@ export default function PredictingPage() {
     { value: "Pet Shop", label: "Pet Shop" },
     { value: "Health and Beauty", label: "Health and Beauty" },
   ];
-  const cityOptions = Object.keys(cityCoordinates).map(city => ({
+  const cityOptions = Object.keys(cityCoordinates).map((city) => ({
     value: city,
-    label: city
+    label: city,
   }));
   const [coords, setCoords] = useState({
     latitude: null,
-    longitude: null
+    longitude: null,
   });
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
 
     if (name === "customer_city" || name === "order_city") {
       const cityInfo = cityCoordinates[value];
@@ -99,53 +98,52 @@ export default function PredictingPage() {
 
         const autoState = cityInfo.state || "";
         if (name === "customer_city") {
-          setFormData(prev => ({ ...prev, customer_state: autoState }));
+          setFormData((prev) => ({ ...prev, customer_state: autoState }));
         } else {
-          setFormData(prev => ({ ...prev, order_state: autoState }));
+          setFormData((prev) => ({ ...prev, order_state: autoState }));
         }
       }
     }
 
     if (name === "order_region") {
-    const regionCountries = Object.keys(geoData[value] || {});
-    setCountries(regionCountries.map(c => ({ value: c, label: c })));
+      const regionCountries = Object.keys(geoData[value] || {});
+      setCountries(regionCountries.map((c) => ({ value: c, label: c })));
 
-    setCities([]);
-    setStates([]);
+      setCities([]);
+      setStates([]);
 
-    setFormData(prev => ({
-      ...prev,
-      order_country: "",
-      order_city: "",
-      order_state: ""
-    }));
-  }
+      setFormData((prev) => ({
+        ...prev,
+        order_country: "",
+        order_city: "",
+        order_state: "",
+      }));
+    }
 
-  // When selecting Country
-  if (name === "order_country") {
-    const region = formData.order_region;
-    const cityList = Object.keys(geoData[region][value] || {});
-    setCities(cityList.map(c => ({ value: c, label: c })));
+    // When selecting Country
+    if (name === "order_country") {
+      const region = formData.order_region;
+      const cityList = Object.keys(geoData[region][value] || {});
+      setCities(cityList.map((c) => ({ value: c, label: c })));
 
-    setStates([]);
+      setStates([]);
 
-    setFormData(prev => ({
-      ...prev,
-      order_city: "",
-      order_state: ""
-    }));
-  }
+      setFormData((prev) => ({
+        ...prev,
+        order_city: "",
+        order_state: "",
+      }));
+    }
 
-  // When selecting City
-  if (name === "order_city") {
-    const { order_region, order_country } = formData;
-    const stateList = geoData[order_region][order_country][value] || [];
+    // When selecting City
+    if (name === "order_city") {
+      const { order_region, order_country } = formData;
+      const stateList = geoData[order_region][order_country][value] || [];
 
-    setStates(stateList.map(s => ({ value: s, label: s })));
+      setStates(stateList.map((s) => ({ value: s, label: s })));
 
-    setFormData(prev => ({ ...prev, order_state: "" }));
-  }
-
+      setFormData((prev) => ({ ...prev, order_state: "" }));
+    }
   };
 
   const handlePredict = async () => {
@@ -153,64 +151,44 @@ export default function PredictingPage() {
       input_data: {
         ...formData,
         latitude: coords.latitude,
-        longitude: coords.longitude
-      }
+        longitude: coords.longitude,
+      },
     };
 
     try {
-    const res = await fetch("http://localhost:8000/order/predicting/", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
-    });
+      const res = await fetch("http://localhost:8000/order/predicting/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
 
-    const data = await res.json();
-    console.log("Response:", data);
+      const data = await res.json();
+      console.log("Response:", data);
 
-    const label = data?.prediction?.label === "1" ? "Likely Late" : "On Time";
-    const prob = data?.prediction?.probability
-      ? (data.prediction.probability * 100).toFixed(2)
-      : null;
+      const label = data?.prediction?.label === "1" ? "Likely Late" : "On Time";
+      const prob = data?.prediction?.probability
+        ? (data.prediction.probability * 100).toFixed(2)
+        : null;
 
-    setPredictionResult(`${label} (${prob}%)`);
-    setRecommendation(data?.llm_suggestion || "No suggestion provided.");
-    
-  } catch (error) {
-    console.error(error);
-    setPredictionResult("Error predicting. Try again.");
-    setRecommendation("No recommendation due to error.");
-  }
-};
+      setPredictionResult(`${label} (${prob}%)`);
+      setRecommendation(data?.llm_suggestion || "No suggestion provided.");
+    } catch (error) {
+      console.error(error);
+      setPredictionResult("Error predicting. Try again.");
+      setRecommendation("No recommendation due to error.");
+    }
+  };
   return (
-     <div className="min-h-screen bg-gray-50 flex flex-col">
-      {/* Header Tabs */}
-      <div className="flex items-center justify-center space-x-10 h-16 bg-primary-1 text-white shadow-sm">
-        <TabButton
-          label="Statistics"
-          isActive={activeTab === "statistics"}
-          onClick={() => setActiveTab("statistics")}
-        />
-        <TabButton
-          label="Predicting"
-          isActive={activeTab === "predicting"}
-          onClick={() => setActiveTab("predicting")}
-        />
-      </div>
-
-      {/* Title */}
-      <div className="bg-primary-1 text-white text-center py-2 font-semibold">
-        Delivery Delay Predictor
-      </div>
-
+    <>
       <div className="p-6 space-y-6">
-
         {/* Input Section */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-
           {/* Left section: Shipment Info */}
           <div className="bg-white shadow-sm rounded-lg p-5 space-y-4 border">
-            <h2 className="font-bold text-lg text-gray-700 border-b pb-2">Shipment Details</h2>
-            
+            <h2 className="font-bold text-lg text-gray-700 border-b pb-2">
+              Shipment Details
+            </h2>
+
             <FormRow
               label="Payment Type"
               name="payment_type"
@@ -244,7 +222,10 @@ export default function PredictingPage() {
               select
               value={formData.order_region}
               onChange={handleChange}
-              options={Object.keys(geoData).map(r => ({ value: r, label: r }))}
+              options={Object.keys(geoData).map((r) => ({
+                value: r,
+                label: r,
+              }))}
             />
 
             <FormRow
@@ -274,7 +255,6 @@ export default function PredictingPage() {
               options={states}
             />
 
-
             <FormRow
               label="Order Status"
               name="order_status"
@@ -286,7 +266,9 @@ export default function PredictingPage() {
           </div>
           {/* Right Section: Product Info */}
           <div className="bg-white shadow-sm rounded-lg p-5 space-y-4 border">
-            <h2 className="font-bold text-lg text-gray-700 border-b pb-2">Product & Cost</h2>
+            <h2 className="font-bold text-lg text-gray-700 border-b pb-2">
+              Product & Cost
+            </h2>
 
             <FormRow
               label="Category Name"
@@ -345,32 +327,43 @@ export default function PredictingPage() {
 
         {/* Predict Button */}
         <div className="flex justify-center">
-          <button className="bg-primary-2 hover:bg-green-700 text-black font-bold px-10 py-3 rounded-md border border-black-500 shadow transition" onClick={handlePredict}>
+          <button
+            className="bg-secondary-1 hover:bg-green-700 text-white px-10 py-3 rounded-md shadow transition"
+            onClick={handlePredict}
+          >
             Predict
           </button>
         </div>
 
         {/* Results */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-4">
-          
           {/* Result */}
           <div className="bg-white shadow rounded-lg p-5 border text-center">
-            <h3 className="text-lg font-semibold text-gray-700 mb-2">Prediction Result</h3>
-            <div id="result" className="border rounded-md bg-gray-50 p-5 text-lg font-medium text-gray-800">
+            <h3 className="text-lg font-semibold text-black mb-2">
+              Prediction Result
+            </h3>
+            <div
+              id="result"
+              className="border border-black rounded-md bg-gray-50 p-5 text-gray-500 break-all"
+            >
               {predictionResult || "Awaiting prediction..."}
             </div>
           </div>
 
           {/* Recommendation */}
-          <div className="bg-white shadow rounded-lg p-5 border">
-            <h3 className="text-lg font-semibold text-gray-700 mb-2">Recommendation</h3>
-            <div id="recommendation" className="border rounded-md bg-gray-50 p-5 min-h-[110px] text-gray-800">
+          <div className="bg-white shadow rounded-lg p-5 border text-center">
+            <h3 className="text-lg text-black mb-2 font-semibold">
+              Recommendation
+            </h3>
+            <div
+              id="recommendation"
+              className="border border-black rounded-md bg-gray-50 p-5 min-h-[110px] text-gray-500 break-all"
+            >
               {recommendation || "No recommendation yet..."}
             </div>
           </div>
         </div>
-
       </div>
-    </div>
+    </>
   );
 }
