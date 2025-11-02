@@ -6,7 +6,7 @@ export default function KPICard({ label, data }) {
   return (
     <div
       style={{
-        border: "2px solid #2196f3",
+        border: "2px solid var(--secondary-color-1)",
         borderRadius: "8px",
         padding: "10px 20px",
         textAlign: "center",
