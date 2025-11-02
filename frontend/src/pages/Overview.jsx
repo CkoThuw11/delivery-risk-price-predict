@@ -82,7 +82,7 @@ function Overview() {
 
           <div className="grid grid-cols-3 grid-rows-2 gap-5 p-6 pt-0 h-full ml-5 mr-6">
             {/* Sales through time */}
-            <div className="col-span-1 row-span-1 bg-white p-4 border-2 border-red-500 flex justify-center items-center ">
+            <div className="col-span-1 row-span-1 bg-white p-4 border-2 border-[var(--secondary-color-1)] flex justify-center items-center ">
               <LineChart
                 name="Sales through time shown"
                 chartData={revenue_over_time}
@@ -93,7 +93,7 @@ function Overview() {
 
             {/*Late Risk*/}
 
-            <div className="col-span-1 row-span-1 bg-white p-4 border-2 border-red-500 flex justify-center items-center ">
+            <div className="col-span-1 row-span-1 bg-white p-4 border-2 border-[var(--secondary-color-1)] flex justify-center items-center ">
               <AreaChart
                 chartData={late_risk_over_time}
                 name="Late risk through time"
@@ -106,15 +106,10 @@ function Overview() {
             </div>
 
             {/*Sales by Region*/}
-            <div className="col-span-1 row-span-1 bg-white p-4 border-2 border-red-500 flex justify-center items-center  ">
+            <div className="col-span-1 row-span-1 bg-white p-4 border-2 border-[var(--secondary-color-1)] flex justify-center items-center  ">
               <HBarChart chartData={top_10_sales_region} />
             </div>
-            {/*Sales by Region*/}
-            {/* <div className="col-span-1 row-span-1 bg-white p-4 border-2 border-red-500 flex justify-center items-center  ">
-              <BarChart name={"Top 10 products"} chartData={department_delivery_status} />
-              </div>
-              */}
-            <div className="col-span-1 row-span-1 bg-white p-4 border-2 border-red-500">
+            <div className="col-span-1 row-span-1 bg-white p-4 border-2 border-[var(--secondary-color-1)]">
               <PieChart
                 name="Distribution of Sales by customer segment"
                 chartData={sales_by_customer_group}
