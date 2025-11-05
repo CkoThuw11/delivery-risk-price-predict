@@ -150,3 +150,5 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.TokenAuthentication',
     ],
 }
+
+# GEMINI_API_KEY= "AIzaSyDmXyIeFfMvWnOn1h7OpVzpSm8xnG36wLQ" #chưa áp dụng biến môi trường
