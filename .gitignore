@@ -1,4 +1,6 @@
+# Package Model
 *.pkl
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]
@@ -209,3 +211,7 @@ __marimo__/
 backend/order/temp.py
 backend/order/temp1.py
 backend/order/LLM_Input.json
+
+#node_modules
+node_modules/
+package-lock.json

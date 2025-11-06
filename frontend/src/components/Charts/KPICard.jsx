@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 
 export default function KPICard({ label, data }) {
   const formattedData = (data / 1_000_000).toFixed(2) + "M"; // đổi sang triệu
@@ -6,7 +6,7 @@ export default function KPICard({ label, data }) {
   return (
     <div
       style={{
-        border: "2px solid #2196f3",
+        border: "2px solid var(--secondary-color-1)",
         borderRadius: "8px",
         padding: "10px 20px",
         textAlign: "center",
@@ -15,8 +15,9 @@ export default function KPICard({ label, data }) {
       }}
     >
       <div style={{ fontSize: "14px", color: "#555" }}>{label}</div>
-      <div style={{ fontSize: "32px", fontWeight: "bold" }}>{formattedData}</div>
+      <div style={{ fontSize: "32px", fontWeight: "bold" }}>
+        {formattedData}
+      </div>
     </div>
   );
 }
-

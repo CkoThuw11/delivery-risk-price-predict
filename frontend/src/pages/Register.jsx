@@ -4,13 +4,13 @@ import { useNavigate } from "react-router-dom";
 
 function SignupPage() {
   const navigate = useNavigate();
-  const [formData, setFormData] = useState({ 
-    firstName: "", 
-    lastName: "", 
-    email: "", 
-    username: "", 
-    password: "", 
-    repeatPassword: "" 
+  const [formData, setFormData] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    username: "",
+    password: "",
+    repeatPassword: "",
   });
   const [errors, setErrors] = useState({});
   const [registerError, setReigsterError] = useState("");
@@ -18,7 +18,7 @@ function SignupPage() {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
     if (errors[name]) {
-      setErrors(prev => ({ ...prev, [name]: "" }));
+      setErrors((prev) => ({ ...prev, [name]: "" }));
     }
     if (registerError) setReigsterError("");
   };
@@ -48,40 +48,39 @@ function SignupPage() {
       }
 
       console.log("Submitting signup");
-      
+
       const { repeatPassword, ...apiData } = formData;
-      
+
       const response = await fetch("http://127.0.0.1:8000/user/signup/", {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json'
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify(apiData)
+        body: JSON.stringify(apiData),
       });
 
       const data = await response.json();
 
       if (response.status === 201) {
         console.log("User information: ", data);
-      }
-      else{
+      } else {
         console.log("Error");
         setReigsterError(data?.detail || "Register failed. somethings wrong.");
       }
       navigate("/login");
-      
     } catch (error) {
       console.error("Error signing up: " + error);
       const errorMessage = error.message;
       let fieldName = "";
 
-
       if (errorMessage.includes("First name")) fieldName = "firstName";
       else if (errorMessage.includes("Last name")) fieldName = "lastName";
       else if (errorMessage.includes("Email")) fieldName = "email";
       else if (errorMessage.includes("Username")) fieldName = "username";
-      else if (errorMessage.includes("Password must be")) fieldName = "password";
-      else if (errorMessage.includes("Passwords do not match")) fieldName = "repeatPassword";
+      else if (errorMessage.includes("Password must be"))
+        fieldName = "password";
+      else if (errorMessage.includes("Passwords do not match"))
+        fieldName = "repeatPassword";
 
       if (fieldName) {
         setErrors({ [fieldName]: errorMessage });
@@ -93,7 +92,9 @@ function SignupPage() {
     <div className="min-h-screen flex bg-white">
       {/* Left Section */}
       <div className="flex-1 bg-accent-1 flex flex-col justify-center items-center p-6 rounded-r-2xl w-159">
-        <h2 className="text-8xl font-bold color-primary-2 max-w-125 [text-shadow:2px_2px_4px_rgba(0,0,0,0.35)]">Welcome Back!</h2>
+        <h2 className="text-8xl font-bold color-primary-2 max-w-125 [text-shadow:2px_2px_4px_rgba(0,0,0,0.35)]">
+          Welcome Back!
+        </h2>
         <div className="w-120 h-[1px] bg-primary-2 mt-4 "></div>
         <div className="mt-5">
           {/* Placeholder for image */}
@@ -109,9 +110,13 @@ function SignupPage() {
       <div className="flex-1 flex justify-center items-center bg-white p-6">
         <div className="w-full max-w-md flex-col flex justify-center">
           {registerError && (
-            <p className="text-red-500 text-sm mt-2 text-center">{registerError}</p>
+            <p className="text-red-500 text-sm mt-2 text-center">
+              {registerError}
+            </p>
           )}
-          <h2 className="text-7xl self-center font-bold color-primary-1 mb-8">Sign up</h2>
+          <h2 className="text-7xl self-center font-bold color-primary-1 mb-8">
+            Sign up
+          </h2>
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* First Name & Last Name */}
             <div className="grid grid-cols-2 gap-4">
@@ -126,11 +131,13 @@ function SignupPage() {
                   onChange={handleChange}
                   placeholder="First Name"
                   className={`w-full px-4 py-2 border rounded-lg bg-gray-100 text-black ${
-                    errors.firstName ? 'border-red-500' : ''
+                    errors.firstName ? "border-red-500" : ""
                   }`}
                 />
                 {errors.firstName && (
-                  <p className="text-red-500 text-xs mt-1">{errors.firstName}</p>
+                  <p className="text-red-500 text-xs mt-1">
+                    {errors.firstName}
+                  </p>
                 )}
               </div>
               <div>
@@ -144,7 +151,7 @@ function SignupPage() {
                   onChange={handleChange}
                   placeholder="Last Name"
                   className={`w-full px-4 py-2 border rounded-lg bg-gray-100 text-black ${
-                    errors.lastName ? 'border-red-500' : ''
+                    errors.lastName ? "border-red-500" : ""
                   }`}
                 />
                 {errors.lastName && (
@@ -165,7 +172,7 @@ function SignupPage() {
                 onChange={handleChange}
                 placeholder="Email Address"
                 className={`w-full px-4 py-2 border rounded-lg bg-gray-100 text-black ${
-                  errors.email ? 'border-red-500' : ''
+                  errors.email ? "border-red-500" : ""
                 }`}
               />
               {errors.email && (
@@ -185,7 +192,7 @@ function SignupPage() {
                 onChange={handleChange}
                 placeholder="User Name"
                 className={`w-full px-4 py-2 border rounded-lg bg-gray-100 text-black ${
-                  errors.username ? 'border-red-500' : ''
+                  errors.username ? "border-red-500" : ""
                 }`}
               />
               {errors.username && (
@@ -205,7 +212,7 @@ function SignupPage() {
                 onChange={handleChange}
                 placeholder="Password"
                 className={`w-full px-4 py-2 border rounded-lg bg-gray-100 focus:outline-none text-black ${
-                  errors.password ? 'border-red-500' : ''
+                  errors.password ? "border-red-500" : ""
                 }`}
               />
               {errors.password && (
@@ -225,11 +232,13 @@ function SignupPage() {
                 onChange={handleChange}
                 placeholder="Repeat Password"
                 className={`w-full px-4 py-2 border rounded-lg bg-gray-100 focus:outline-none text-black ${
-                  errors.repeatPassword ? 'border-red-500' : ''
+                  errors.repeatPassword ? "border-red-500" : ""
                 }`}
               />
               {errors.repeatPassword && (
-                <p className="text-red-500 text-xs mt-1">{errors.repeatPassword}</p>
+                <p className="text-red-500 text-xs mt-1">
+                  {errors.repeatPassword}
+                </p>
               )}
             </div>
 
@@ -241,13 +250,18 @@ function SignupPage() {
               Sign up
             </button>
           </form>
-          
+
           {/* Login Link */}
           <p className="mt-6 text-center text-sm text-gray-600">
             Already have an account?{" "}
-            <a href="#" className="color-secondary-1 font-medium hover:underline hover-color-primary-1" onClick={(e) => {
-              e.preventDefault();
-              navigate("/login")}}>
+            <a
+              href="#"
+              className="color-secondary-1 font-medium hover:underline hover-color-primary-1"
+              onClick={(e) => {
+                e.preventDefault();
+                navigate("/login");
+              }}
+            >
               Login Now
             </a>
           </p>
