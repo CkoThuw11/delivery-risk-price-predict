@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from order.models import OrderRecord, OrderMachineLearning, EvaluationMetric
+from order.models import OrderRecord, OrderMachineLearning
 
 class PredictionRecordSerializer(serializers.ModelSerializer):
   class Meta:
