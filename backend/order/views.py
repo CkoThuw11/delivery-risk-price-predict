@@ -8,7 +8,7 @@ from order.serializers import PredictionRecordSerializer
 import os
 import pickle
 import gc
-import joblib
+# import joblib
 # import shap
 import pandas as pd
 from scipy.sparse import hstack
@@ -18,8 +18,7 @@ import pandas as pd
 import joblib
 # import shap
 import os # Để xử lý đường dẫn file
-import requests # Dùng để gọi LLM API
-from pydantic import BaseModel
+
 import google.generativeai as genai
 
 def normalize_input(input_dict):
@@ -49,7 +48,7 @@ def load_models(model_name='random_forest'):
             # Kiểm tra cấu trúc và lấy encoder, scaler, model
             encoder = pkg.get("encoder")
             scaler = pkg.get("scaler")
-            model = pkg.get("models", {}).get(name, {}).get("ROS")
+            model = pkg.get("models", {}).get(name, {}).get("AllKNN") #nếu mà thay đổi Phương pháp Resampling thì có đổi "ROS" k?
 
             if encoder is None or scaler is None or model is None:
                 return None, f"Thiếu encoder/scaler/model trong {name}, bỏ qua."
@@ -764,7 +763,7 @@ class PredictionAPIView(APIView):
                 llm_data={
                      "prediction":{
                      "label": label,
-                     "probability": prob
+                     "probability": prob[1] #sẽ trả về list
                     #  "metrics":metrics
                     },
                     "feature_importance": metrics
@@ -780,12 +779,12 @@ class PredictionAPIView(APIView):
                 # prediction_instance.llm_suggestion = LLM_suggestion # (Nếu có trường này trong model)
                 
                 prediction_instance.save()
-                
+                good_prob=prob[1]
                  # LƯU LẦN 2: Cập nhật kết quả dự đoán
                 final_response={
                 "prediction":{
                     "label":label,
-                    "probability":prob
+                    "probability":good_prob
                 },
                 "LLM response":LLM_response
             }
