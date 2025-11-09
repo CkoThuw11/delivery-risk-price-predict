@@ -1,7 +1,6 @@
 from rest_framework import serializers
-from order.models import OrderRecord,OrderMachineLearning #evaluationmetric
+from order.models import OrderRecord, OrderMachineLearning, EvaluationMetric
 
-#============Để tạm, khi push là phải xóa=============#
 class PredictionRecordSerializer(serializers.ModelSerializer):
   class Meta:
         model = OrderMachineLearning

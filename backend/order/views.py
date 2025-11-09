@@ -189,7 +189,7 @@ class DashboardOverviewAPIView(APIView):
                 OrderRecord.objects
                 .values("Category_Name") #nhóm data theo nhóm Customer
                 .annotate(total_sales=Sum("Sales")) #Tính thằng nào có doanh thu cao nhất
-                .order_by("-total_sales")
+                .order_by("-total_sales")[:22]
             )
 
             top_10_products_data=[
@@ -287,14 +287,12 @@ class SalesByPayment(APIView):
             data_list = list(queryset)
 
             response_data = {
-                "charts": {
-                    "revenue_by_payment_method": {
-                        "chart_type": "bar",
-                        "label": "Type",
-                        "value": "total_sales",
-                        "unit": "USD",
-                        "data": data_list
-                    }
+                "charts": { 
+                    "chart_type": "bar",
+                    "label": "Type",
+                    "value": ["total_sales"],
+                    "unit": "USD",
+                    "data": data_list
                 }
             }
 
@@ -316,13 +314,11 @@ class SalesByMarket(APIView):
 
             response_data = {
                 "charts": {
-                    "revenue_by_market": {
-                        "chart_type": "pie",
-                        "label": "Market",
-                        "value": "total_sales",
-                        "unit": "USD",
-                        "data": data_list
-                    }
+                    "chart_type": "pie",
+                    "label": "Market",
+                    "value": "total_sales",
+                    "unit": "USD",
+                    "data": data_list
                 }
             }
             return Response(response_data, status=status.HTTP_200_OK)
@@ -354,15 +350,13 @@ class SalesByRegion(APIView):
 
             response_data = {
                 "charts": {
-                    "sales_by_region": {
-                        "chart_type": "bar",
-                        "label": "region",
-                        "value": "total_sales",
-                        "unit": "USD",
-                        "filter_field": "market",
-                        "default_filter": "Africa",
-                        "data": data_by_market
-                    }
+                    "chart_type": "bar",
+                    "label": "region",
+                    "value": ["total_sales"],
+                    "unit": "USD",
+                    "filter_field": "market",
+                    "default_filter": "Africa",
+                    "data": data_by_market
                 }
             }
 
@@ -402,15 +396,13 @@ class LateDeliveryByRegion(APIView):
 
             response_data = {
                 "charts": {
-                    "late_delivery_rate_by_region": {
-                        "chart_type": "bar",
-                        "label": "region",
-                        "value": "late_rate",
-                        "unit": "percentage",
-                        "filter_field": "market",
-                        "default_filter": "Africa",
-                        "data": data_by_market
-                    }
+                    "chart_type": "bar",
+                    "label": "region",
+                    "value": ["late_rate"],
+                    "unit": "percentage",
+                    "filter_field": "market",
+                    "default_filter": "Africa",
+                    "data": data_by_market
                 }
             }
 
@@ -433,11 +425,10 @@ class DeliveryPerformancebyCategories(APIView):
                 .order_by("-total_sales")[:10]
             )
             data=[{
-                    "cateogory_name": r["Category_Name"],  "On_Time": r["total_on_time"], 
+                    "category_name": r["Category_Name"],  "On_Time": r["total_on_time"], 
                     "Late": r["total_late"] } for r in queryset]
             response_data = {
                 "charts": {
-                    "category_delivery_status": {
                     "chart_type": "bar",
                     "label": "category_name",
                     "value": ["On_Time", "Late"],
@@ -446,7 +437,6 @@ class DeliveryPerformancebyCategories(APIView):
                     "data": data
                     }
                 }   
-            }
             return Response(response_data, status=status.HTTP_200_OK)
 
         except Exception as e:
@@ -469,14 +459,12 @@ class DeliveryPerformanceByDepartments(APIView):
 
             response_data = {
                 "charts": {
-                    "department_delivery_status": {
-                        "chart_type": "bar",
-                        "label":"department_name",
-                        "value":["On_Time", "Late"],
-                        "unit": "order",
-                        "stacked": True,
-                        "data": data
-                    }
+                    "chart_type": "bar",
+                    "label":"department_name",
+                    "value":["On_Time", "Late"],
+                    "unit": "order",
+                    "stacked": True,
+                    "data": data
                 }   
             }
             return Response(response_data, status=status.HTTP_200_OK)
@@ -499,13 +487,11 @@ class OrdersByShippingmode(APIView):
 
             response_data = {
                 "charts": {
-                    "shipping_mode_distribution": {
                     "chart_type": "pie",
                     "label": "ShippingMode",
                     "value": "orders",
                     "unit": "order",
                     "data": ordersbyshippingmode
-                    }
                 }
             }
             return Response(response_data, status=status.HTTP_200_OK)

@@ -1,7 +1,14 @@
-function FormRow({ label, name, value, onChange, select = false, options = [] }) {
+function FormRow({
+  label,
+  name,
+  value,
+  onChange,
+  select = false,
+  options = [],
+}) {
   return (
-    <div className="flex items-center justify-between">
-      <label htmlFor={name} className="text-sm font-medium w-[35%]">
+    <div className="flex items-center justify-between text-black">
+      <label htmlFor={name} className="text-ml font-medium w-[35%]">
         {label}
       </label>
 
