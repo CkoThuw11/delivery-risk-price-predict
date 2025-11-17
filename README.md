@@ -2,7 +2,7 @@
 Copy scripts in setup_database.sql --> Running it within MySQL Workbench
 
 Don't hesitate to ask for help if you need 
-
+huhuhu
 # Backend Setup 
 
 ## Navigate to the project directory
