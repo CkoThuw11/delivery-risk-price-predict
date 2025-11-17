@@ -1,48 +1,33 @@
-import { Outlet, useNavigate } from "react-router-dom";
-import { TabButton } from "../ui/TabButton";
 import { useState } from "react";
+import { Outlet, useNavigate } from "react-router-dom";
+import RoleSidebarWrapper from "../ui/RoleSidebarWrapper";
 
-const MainLayout = (props) => {
-  const [activeTab, setActiveTab] = useState("statistics");
+function MainLayout() {
   const navigate = useNavigate();
-  const handleLogoutButton = () => {
+  const [activeMenuItem, setActiveMenuItem] = useState("overview");
+
+  const handleLogout = () => {
+    
     localStorage.removeItem("authToken");
+    localStorage.removeItem("role");
+    localStorage.removeItem("refreshToken");
+    
     navigate("/login");
   };
+
   return (
-    <div>
-      <div className="min-h-screen bg-[#ffffff] flex flex-col p-0">
-        {/* --- Header Tabs --- */}
-        <div className="flex items-center justify-center space-x-10 h-16 bg-secondary-1 relative">
-          <div className="p-0 ">
-            <button
-              className="absolute top-[11px] right-[11px] border bg-primary-2 text-black pr-4 pl-4 pt-2 pb-2 rounded-xl"
-              onClick={handleLogoutButton}
-            >
-              Logout
-            </button>
-          </div>
-          <TabButton
-            label="Statistics"
-            isActive={activeTab === "statistics"}
-            onClick={() => {
-              setActiveTab("statistics");
-              navigate("/mainpage");
-            }}
-          />
-          <TabButton
-            label="Predicting"
-            isActive={activeTab === "predicting"}
-            onClick={() => {
-              setActiveTab("predicting");
-              navigate("/predicting");
-            }}
-          />
-        </div>
+    <div className="flex h-screen bg-gray-100">
+      <RoleSidebarWrapper
+        activeMenuItem={activeMenuItem}
+        setActiveMenuItem={setActiveMenuItem}
+        onLogout={handleLogout}
+      />
+      
+      <div className="flex-1 overflow-auto">
         <Outlet />
       </div>
     </div>
   );
-};
+}
 
 export default MainLayout;

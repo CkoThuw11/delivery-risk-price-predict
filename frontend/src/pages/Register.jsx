@@ -1,8 +1,19 @@
 import { useState } from "react";
-import Input from "../components/ui/Input";
 import { useNavigate } from "react-router-dom";
+import bgImage from "../assets/img/background.png"; 
+import { apiFetch } from "../utils/apiFetch";
 
-function SignupPage() {
+const Input = ({ className = "", ...props }) => (
+  <input
+    {...props}
+    className={
+      "w-full px-5 py-3 rounded-lg bg-gray-200 text-gray-900 focus:outline-none focus:ring-2 focus:ring-orange-500 " +
+      className
+    }
+  />
+);
+
+export default function Signup() {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     firstName: "",
@@ -13,115 +24,82 @@ function SignupPage() {
     repeatPassword: "",
   });
   const [errors, setErrors] = useState({});
-  const [registerError, setReigsterError] = useState("");
+  const [registerError, setRegisterError] = useState("");
+  const [loading, setLoading] = useState(false);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-    if (errors[name]) {
-      setErrors((prev) => ({ ...prev, [name]: "" }));
-    }
-    if (registerError) setReigsterError("");
+    if (errors[name]) setErrors((prev) => ({ ...prev, [name]: "" }));
+    if (registerError) setRegisterError("");
   };
 
   const handleSubmit = async (e) => {
+    e.preventDefault();
+    setErrors({});
+    setRegisterError("");
+
+    if (!formData.firstName.trim()) return setErrors({ firstName: "First name is required" });
+    if (!formData.lastName.trim()) return setErrors({ lastName: "Last name is required" });
+    if (!formData.email.trim()) return setErrors({ email: "Email is required" });
+    if (!formData.username.trim()) return setErrors({ username: "Username is required" });
+    if (formData.password.length <= 3)
+      return setErrors({ password: "Password must be at least 4 characters" });
+    if (formData.password !== formData.repeatPassword)
+      return setErrors({ repeatPassword: "Passwords do not match" });
+
     try {
-      e.preventDefault();
-      setErrors({});
-
-      if (!formData.firstName.trim()) {
-        throw Error("First name is required");
-      }
-      if (!formData.lastName.trim()) {
-        throw Error("Last name is required");
-      }
-      if (!formData.email.trim()) {
-        throw Error("Email is required");
-      }
-      if (!formData.username.trim()) {
-        throw Error("Username is required");
-      }
-      if (formData.password.length <= 3) {
-        throw Error("Password must be at least 3 characters");
-      }
-      if (formData.password !== formData.repeatPassword) {
-        throw Error("Passwords do not match");
-      }
-
-      console.log("Submitting signup");
-
+      setLoading(true);
       const { repeatPassword, ...apiData } = formData;
 
-      const response = await fetch("http://127.0.0.1:8000/user/signup/", {
+      const response = await apiFetch("http://127.0.0.1:8000/user/signup/", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(apiData),
+        body: JSON.stringify(apiData)
       });
 
       const data = await response.json();
-
       if (response.status === 201) {
-        console.log("User information: ", data);
+        console.log("Registered successfully:", data);
+        navigate("/login");
       } else {
-        console.log("Error");
-        setReigsterError(data?.detail || "Register failed. somethings wrong.");
+        setRegisterError(data?.detail || "Registration failed. Please try again.");
       }
-      navigate("/login");
-    } catch (error) {
-      console.error("Error signing up: " + error);
-      const errorMessage = error.message;
-      let fieldName = "";
-
-      if (errorMessage.includes("First name")) fieldName = "firstName";
-      else if (errorMessage.includes("Last name")) fieldName = "lastName";
-      else if (errorMessage.includes("Email")) fieldName = "email";
-      else if (errorMessage.includes("Username")) fieldName = "username";
-      else if (errorMessage.includes("Password must be"))
-        fieldName = "password";
-      else if (errorMessage.includes("Passwords do not match"))
-        fieldName = "repeatPassword";
-
-      if (fieldName) {
-        setErrors({ [fieldName]: errorMessage });
-      }
+    } catch (err) {
+      console.error(err);
+      setRegisterError("Something went wrong. Please try again later.");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex bg-white">
-      {/* Left Section */}
-      <div className="flex-1 bg-accent-1 flex flex-col justify-center items-center p-6 rounded-r-2xl w-159">
-        <h2 className="text-8xl font-bold color-primary-2 max-w-125 [text-shadow:2px_2px_4px_rgba(0,0,0,0.35)]">
-          Welcome Back!
-        </h2>
-        <div className="w-120 h-[1px] bg-primary-2 mt-4 "></div>
-        <div className="mt-5">
-          {/* Placeholder for image */}
-          <img
-            src="src/assets/img/logging-page-banner.png"
-            alt="illustration"
-            className="w-full"
-          />
-        </div>
-      </div>
-
-      {/* Right Section */}
-      <div className="flex-1 flex justify-center items-center bg-white p-6">
-        <div className="w-full max-w-md flex-col flex justify-center">
-          {registerError && (
-            <p className="text-red-500 text-sm mt-2 text-center">
-              {registerError}
-            </p>
-          )}
-          <h2 className="text-7xl self-center font-bold color-primary-1 mb-8">
-            Sign up
+    <div
+      className="min-h-screen w-full flex items-center justify-end bg-cover bg-center font-sans"
+      style={{
+        backgroundImage: `url(${bgImage})`,
+      }}
+    >
+      {/* Signup form */}
+      <div className="w-full md:w-1/2 lg:w-2/5 bg-transparent h-full flex items-center">
+        <div className="w-full max-w-md mx-auto p-8 md:p-12">
+          <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
+            Create Account
           </h2>
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {/* First Name & Last Name */}
+          
+          {registerError && (
+            <div
+              className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg mb-4"
+              role="alert"
+            >
+              <span className="block sm:inline">{registerError}</span>
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-5">
+            {/* Name fields */}
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-bold color-primary-1 mb-3">
+                <label className="block text-sm font-medium text-white mb-2">
                   First Name
                 </label>
                 <Input
@@ -129,19 +107,15 @@ function SignupPage() {
                   name="firstName"
                   value={formData.firstName}
                   onChange={handleChange}
-                  placeholder="First Name"
-                  className={`w-full px-4 py-2 border rounded-lg bg-gray-100 text-black ${
-                    errors.firstName ? "border-red-500" : ""
-                  }`}
+                  placeholder="First name"
+                  className={errors.firstName ? "ring-2 ring-red-500" : ""}
                 />
                 {errors.firstName && (
-                  <p className="text-red-500 text-xs mt-1">
-                    {errors.firstName}
-                  </p>
+                  <p className="text-red-300 text-xs mt-1">{errors.firstName}</p>
                 )}
               </div>
               <div>
-                <label className="block text-sm font-bold color-primary-1 mb-3">
+                <label className="block text-sm font-medium text-white mb-2">
                   Last Name
                 </label>
                 <Input
@@ -149,114 +123,105 @@ function SignupPage() {
                   name="lastName"
                   value={formData.lastName}
                   onChange={handleChange}
-                  placeholder="Last Name"
-                  className={`w-full px-4 py-2 border rounded-lg bg-gray-100 text-black ${
-                    errors.lastName ? "border-red-500" : ""
-                  }`}
+                  placeholder="Last name"
+                  className={errors.lastName ? "ring-2 ring-red-500" : ""}
                 />
                 {errors.lastName && (
-                  <p className="text-red-500 text-xs mt-1">{errors.lastName}</p>
+                  <p className="text-red-300 text-xs mt-1">{errors.lastName}</p>
                 )}
               </div>
             </div>
 
-            {/* Email Address */}
+            {/* Email */}
             <div>
-              <label className="block text-sm font-bold color-primary-1 mb-3">
-                Email Address
+              <label className="block text-sm font-medium text-white mb-2">
+                Email
               </label>
               <Input
                 type="email"
                 name="email"
                 value={formData.email}
                 onChange={handleChange}
-                placeholder="Email Address"
-                className={`w-full px-4 py-2 border rounded-lg bg-gray-100 text-black ${
-                  errors.email ? "border-red-500" : ""
-                }`}
+                placeholder="Enter your email"
+                className={errors.email ? "ring-2 ring-red-500" : ""}
               />
               {errors.email && (
-                <p className="text-red-500 text-xs mt-1">{errors.email}</p>
+                <p className="text-red-300 text-xs mt-1">{errors.email}</p>
               )}
             </div>
 
-            {/* User Name */}
+            {/* Username */}
             <div>
-              <label className="block text-sm font-bold color-primary-1 mb-3">
-                User Name
+              <label className="block text-sm font-medium text-white mb-2">
+                Username
               </label>
               <Input
                 type="text"
                 name="username"
                 value={formData.username}
                 onChange={handleChange}
-                placeholder="User Name"
-                className={`w-full px-4 py-2 border rounded-lg bg-gray-100 text-black ${
-                  errors.username ? "border-red-500" : ""
-                }`}
+                placeholder="Choose a username"
+                className={errors.username ? "ring-2 ring-red-500" : ""}
               />
               {errors.username && (
-                <p className="text-red-500 text-xs mt-1">{errors.username}</p>
+                <p className="text-red-300 text-xs mt-1">{errors.username}</p>
               )}
             </div>
 
             {/* Password */}
             <div>
-              <label className="block text-sm font-bold color-primary-1 mb-3">
+              <label className="block text-sm font-medium text-white mb-2">
                 Password
               </label>
-              <input
+              <Input
                 type="password"
                 name="password"
                 value={formData.password}
                 onChange={handleChange}
-                placeholder="Password"
-                className={`w-full px-4 py-2 border rounded-lg bg-gray-100 focus:outline-none text-black ${
-                  errors.password ? "border-red-500" : ""
-                }`}
+                placeholder="Create a password"
+                className={errors.password ? "ring-2 ring-red-500" : ""}
               />
               {errors.password && (
-                <p className="text-red-500 text-xs mt-1">{errors.password}</p>
+                <p className="text-red-300 text-xs mt-1">{errors.password}</p>
               )}
             </div>
 
-            {/* Repeat Password */}
+            {/* Confirm Password */}
             <div>
-              <label className="block text-sm font-bold color-primary-1 mb-3">
+              <label className="block text-sm font-medium text-white mb-2">
                 Repeat Password
               </label>
-              <input
+              <Input
                 type="password"
                 name="repeatPassword"
                 value={formData.repeatPassword}
                 onChange={handleChange}
-                placeholder="Repeat Password"
-                className={`w-full px-4 py-2 border rounded-lg bg-gray-100 focus:outline-none text-black ${
-                  errors.repeatPassword ? "border-red-500" : ""
-                }`}
+                placeholder="Repeat password"
+                className={errors.repeatPassword ? "ring-2 ring-red-500" : ""}
               />
               {errors.repeatPassword && (
-                <p className="text-red-500 text-xs mt-1">
+                <p className="text-red-300 text-xs mt-1">
                   {errors.repeatPassword}
                 </p>
               )}
             </div>
 
-            {/* Sign Up Button */}
+            {/* Submit */}
             <button
               type="submit"
-              className="w-full bg-secondary-1 color-primary-2 py-3 rounded-lg text-lg font-semibold transition hover-bg-color-primary-1"
+              disabled={loading}
+              className="w-full bg-primary-3 text-white py-3 rounded-full text-lg font-semibold transition hover:text-green-100"
             >
-              Sign up
+              {loading ? "Signing up..." : "Sign Up"}
             </button>
           </form>
 
-          {/* Login Link */}
-          <p className="mt-6 text-center text-sm text-gray-600">
+          {/* Login link */}
+          <p className="mt-6 text-center text-sm font-bold text-[#CCCCCC]">
             Already have an account?{" "}
             <a
               href="#"
-              className="color-secondary-1 font-medium hover:underline hover-color-primary-1"
+              className="font-medium color-accent-3 hover:text-green-100"
               onClick={(e) => {
                 e.preventDefault();
                 navigate("/login");
@@ -270,5 +235,3 @@ function SignupPage() {
     </div>
   );
 }
-
-export default SignupPage;
