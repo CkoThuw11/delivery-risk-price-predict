@@ -138,7 +138,6 @@ celerybeat.pid
 *.sage.py
 
 # Environments
-.env
 .envrc
 .venv
 env/
@@ -212,6 +211,5 @@ backend/order/temp.py
 backend/order/temp1.py
 backend/order/LLM_Input.json
 
-#node_modules
-node_modules/
-package-lock.json
+# CSV file
+*.csv
