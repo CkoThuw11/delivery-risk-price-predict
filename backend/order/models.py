@@ -29,16 +29,15 @@ class OrderMachineLearning(models.Model):
     cost = models.FloatField()
 
     # Calculate variables
-    sales_per_customer = models.FloatField(blank=True, null=True) #sales_per_customer=order_item_product_price * order_item_quantity*(1-order_item_discount_rate)
-    benefit_per_order = models.FloatField(blank=True, null=True) #benefit_per_order=sales_per_customer - cost
-    order_item_profit_ratio = models.FloatField(blank=True, null=True) #order_item_profit_ratio= benefit_per_order/sales_per_customer
+    sales_per_customer = models.FloatField(blank=True, null=True) 
+    benefit_per_order = models.FloatField(blank=True, null=True) 
+    order_item_profit_ratio = models.FloatField(blank=True, null=True) 
     
     latitude = models.FloatField(null=True, blank=True)
     longitude = models.FloatField(null=True, blank=True)
     late_delivery_risk = models.BooleanField(blank=True, null=True)
     
     def save(self, *args, **kwargs):
-        # Calculate sales per person
         self.sales_per_customer = (
             self.order_item_product_price
             * self.order_item_quantity
@@ -46,7 +45,6 @@ class OrderMachineLearning(models.Model):
         )
         self.benefit_per_order = self.sales_per_customer - self.cost
 
-        # Calculate order item profit ratio
         self.order_item_profit_ratio = (
             self.benefit_per_order / self.sales_per_customer
             if self.sales_per_customer != 0
@@ -133,10 +131,43 @@ class OrderRecord(models.Model):
     Shipping_Mode = models.CharField(max_length=100, blank=True, null=True)
 
 
-# class EvaluationMetric(models.Model):
-#     prediction= models.OneToOneField(OrderMachineLearning, on_delete=models.CASCADE, related_name='evaluation')
-#     accuracy = models.FloatField()
-#     precision = models.FloatField()
-#     recall = models.FloatField()
-#     f1_score = models.FloatField()
-#     created_at = models.DateTimeField(auto_now_add=True)
+class OrderForML(models.Model):
+    # Categorical Features
+    department_name = models.CharField(max_length=100, blank=True, null=True)
+    category_name = models.CharField(max_length=100, blank=True, null=True)
+    customer_state = models.CharField(max_length=100, blank=True, null=True)
+    order_status = models.CharField(max_length=100, blank=True, null=True)
+    order_country = models.CharField(max_length=100, blank=True, null=True)
+    order_region = models.CharField(max_length=100, blank=True, null=True)
+    order_state = models.CharField(max_length=100, blank=True, null=True)
+    payment_type = models.CharField(max_length=100, blank=True, null=True)
+    customer_city = models.CharField(max_length=100, blank=True, null=True)
+    order_city = models.CharField(max_length=100, blank=True, null=True)
+    shipping_mode = models.CharField(max_length=100, blank=True, null=True)
+    
+    # Numerical Features
+    days_for_shipment_scheduled = models.IntegerField()
+    benefit_per_order = models.DecimalField(max_digits=14, decimal_places=2, blank=True, null=True)
+    sales_per_customer = models.DecimalField(max_digits=14, decimal_places=2, blank=True, null=True)
+    latitude = models.FloatField(blank=True, null=True)
+    longitude = models.FloatField(blank=True, null=True)
+    order_item_discount_rate = models.FloatField(blank=True, null=True)
+    order_item_product_price = models.DecimalField(max_digits=14, decimal_places=2, blank=True, null=True)
+    order_item_profit_ratio = models.FloatField(blank=True, null=True)
+    order_item_quantity = models.IntegerField(blank=True, null=True)
+    
+    # Target Variable
+    late_delivery_risk = models.BooleanField(default=False,blank=True, null=True)
+    
+    # Metadata
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        db_table = 'order_orderforml'
+        ordering = ['-id']
+        verbose_name = 'Order for ML'
+        verbose_name_plural = 'Orders for ML'
+    
+    def __str__(self):
+        return f"Order {self.id} - {self.order_status}"

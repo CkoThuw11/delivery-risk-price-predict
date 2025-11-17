@@ -11,3 +11,21 @@ python-decouple>=3.8
 pytz
 
 sqlparse
+
+scipy 
+
+joblib 
+
+scikit-learn
+
+imbalanced-learn
+
+djangorestframework-simplejwt
+
+python-dotenv
+
+python-dateutil
+
+pandas
+
+google-generativeai
