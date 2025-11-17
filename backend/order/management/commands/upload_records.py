@@ -5,8 +5,8 @@ from order.models import OrderRecord
 from django.core.management.base import BaseCommand, CommandError
 from django.db import IntegrityError, transaction
 
+# Mapping field
 POSITIONAL_MAPPING = {
-# General Fields
 0: 'Type',
 1: 'Days_for_shipping_real',
 2: 'Days_for_shipment_scheduled',
@@ -65,7 +65,7 @@ POSITIONAL_MAPPING = {
 BATCH_SIZE = 5000  
 
 class Command(BaseCommand):
-    help = 'Bulk uploads order records from a CSV file in batches.'
+    help = 'Bulk file into OrderRecord'
 
     def add_arguments(self, parser):
         parser.add_argument('csv_filepath', type=str)
@@ -127,4 +127,4 @@ class Command(BaseCommand):
         except IntegrityError as e:
             raise CommandError(f"Database integrity error: {e}")
         except Exception as e:
-            raise CommandError(f"Error during import: {e}")
+            raise CommandError(f"Error: {e}")

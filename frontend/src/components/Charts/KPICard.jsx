@@ -1,7 +1,5 @@
-import React from "react";
-
 export default function KPICard({ label, data }) {
-  const formattedData = (data / 1_000_000).toFixed(2) + "M"; // đổi sang triệu
+  const formattedData = (data / 1_000_000).toFixed(2) + "M";
 
   return (
     <div

@@ -1,8 +1,119 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { apiFetch } from "../utils/apiFetch";
+import { 
+  Truck, 
+  DollarSign, 
+  ClipboardCheck, 
+  Lightbulb,
+  Loader2
+} from "lucide-react";
 import FormRow from "../components/ui/FormRow";
 import { cityCoordinates } from "../data/locationCoordinates";
 import geoData from "../data/geographic_input_data.json";
+
+
+const FormattedRecommendation = ({ text }) => {
+  if (!text) return null;
+
+  const lines = text.split('\n').filter(line => line.trim());
+  const elements = [];
+  let currentParagraph = [];
+  let bulletPoints = [];
+
+  lines.forEach((line) => {
+    const trimmed = line.trim();
+
+    if (trimmed.startsWith('-') || trimmed.startsWith('•')) {
+
+      if (currentParagraph.length > 0) {
+        elements.push({
+          type: 'paragraph',
+          content: currentParagraph.join(' ')
+        });
+        currentParagraph = [];
+      }
+      
+      const content = trimmed.substring(1).trim();
+      bulletPoints.push(content);
+    } else {
+      if (bulletPoints.length > 0) {
+        elements.push({
+          type: 'bullets',
+          items: [...bulletPoints]
+        });
+        bulletPoints = [];
+      }
+      if (trimmed) {
+        currentParagraph.push(trimmed);
+      } else if (currentParagraph.length > 0) {
+        elements.push({
+          type: 'paragraph',
+          content: currentParagraph.join(' ')
+        });
+        currentParagraph = [];
+      }
+    }
+  });
+
+  if (currentParagraph.length > 0) {
+    elements.push({
+      type: 'paragraph',
+      content: currentParagraph.join(' ')
+    });
+  }
+  if (bulletPoints.length > 0) {
+    elements.push({
+      type: 'bullets',
+      items: bulletPoints
+    });
+  }
+
+  const renderTextWithBold = (text) => {
+    const parts = text.split('**');
+    return parts.map((part, i) => 
+      i % 2 === 1 ? (
+        <strong key={i} className="font-bold text-teal-800">{part}</strong>
+      ) : (
+        <span key={i}>{part}</span>
+      )
+    );
+  };
+
+  return (
+    <div className="space-y-4 text-left">
+      {elements.map((element, index) => {
+        if (element.type === 'paragraph') {
+          return (
+            <div key={index} className="text-gray-700 leading-relaxed text-sm">
+              {renderTextWithBold(element.content)}
+            </div>
+          );
+        }
+        
+        if (element.type === 'bullets') {
+          return (
+            <ul key={index} className="space-y-3 ml-2">
+              {element.items.map((item, bIndex) => (
+                <li key={bIndex} className="flex items-start gap-3">
+                  <div className="mt-1.5">
+                    <div className="w-2 h-2 rounded-full bg-teal-600"></div>
+                  </div>
+                  <span className="flex-1 text-gray-700 text-sm leading-relaxed">
+                    {renderTextWithBold(item)}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          );
+        }
+        
+        return null;
+      })}
+    </div>
+  );
+};
+
 
 export default function PredictingPage() {
   const [countries, setCountries] = useState([]);
@@ -10,6 +121,7 @@ export default function PredictingPage() {
   const [states, setStates] = useState([]);
   const [predictionResult, setPredictionResult] = useState("");
   const [recommendation, setRecommendation] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const [formData, setFormData] = useState({
     payment_type: "",
@@ -29,11 +141,13 @@ export default function PredictingPage() {
     order_item_quantity: "",
     cost: "",
   });
+
   const paymentTypes = [
     { value: "DEBIT", label: "Debit" },
     { value: "CASH", label: "Cash" },
     { value: "TRANSFER", label: "Transfer" },
     { value: "PAYMENT", label: "Payment" },
+    { value: "CREDIT", label: "Credit" },
   ];
 
   const shippingModes = [
@@ -65,6 +179,7 @@ export default function PredictingPage() {
     { value: "Garden", label: "Garden" },
     { value: "Music", label: "Music" },
   ];
+
   const departmentNames = [
     { value: "Fitness", label: "Fitness" },
     { value: "Apparel", label: "Apparel" },
@@ -78,10 +193,12 @@ export default function PredictingPage() {
     { value: "Pet Shop", label: "Pet Shop" },
     { value: "Health and Beauty", label: "Health and Beauty" },
   ];
+
   const cityOptions = Object.keys(cityCoordinates).map((city) => ({
     value: city,
     label: city,
   }));
+
   const [coords, setCoords] = useState({
     latitude: null,
     longitude: null,
@@ -108,10 +225,8 @@ export default function PredictingPage() {
     if (name === "order_region") {
       const regionCountries = Object.keys(geoData[value] || {});
       setCountries(regionCountries.map((c) => ({ value: c, label: c })));
-
       setCities([]);
       setStates([]);
-
       setFormData((prev) => ({
         ...prev,
         order_country: "",
@@ -120,14 +235,11 @@ export default function PredictingPage() {
       }));
     }
 
-    // When selecting Country
     if (name === "order_country") {
       const region = formData.order_region;
       const cityList = Object.keys(geoData[region][value] || {});
       setCities(cityList.map((c) => ({ value: c, label: c })));
-
       setStates([]);
-
       setFormData((prev) => ({
         ...prev,
         order_city: "",
@@ -135,60 +247,80 @@ export default function PredictingPage() {
       }));
     }
 
-    // When selecting City
     if (name === "order_city") {
       const { order_region, order_country } = formData;
       const stateList = geoData[order_region][order_country][value] || [];
-
       setStates(stateList.map((s) => ({ value: s, label: s })));
-
       setFormData((prev) => ({ ...prev, order_state: "" }));
     }
   };
 
   const handlePredict = async () => {
     const payload = {
-      input_data: {
-        ...formData,
-        latitude: coords.latitude,
-        longitude: coords.longitude,
-      },
+      payment_type: formData.payment_type,
+      shipping_mode: formData.shipping_mode,
+      customer_city: formData.customer_city,
+      customer_state: formData.customer_state,
+      order_region: formData.order_region,
+      order_country: formData.order_country,
+      order_city: formData.order_city,
+      order_state: formData.order_state,
+      order_status: formData.order_status,
+      category_name: formData.category_name,
+      department_name: formData.department_name,
+      days_for_shipment_scheduled: parseInt(formData.days_for_shipment_scheduled),
+      order_item_discount_rate: parseFloat(formData.order_item_discount_rate),
+      order_item_product_price: parseFloat(formData.order_item_product_price),
+      order_item_quantity: parseInt(formData.order_item_quantity),
+      cost: parseFloat(formData.cost),
+      latitude: coords.latitude,
+      longitude: coords.longitude
     };
 
+    console.log(payload);
+    setIsLoading(true);
+
     try {
-      const res = await fetch("http://localhost:8000/order/predicting/", {
+      const res = await apiFetch("http://localhost:8000/order/predicting/", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
 
+      if (!res.ok) throw new Error(`HTTP error! Status: ${res.status}`);
+
       const data = await res.json();
       console.log("Response:", data);
-
-      const label = data?.prediction?.label === "1" ? "Likely Late" : "On Time";
+      
+      const label = data?.prediction?.label === 1 ? "Late" : "On Time";
       const prob = data?.prediction?.probability
         ? (data.prediction.probability * 100).toFixed(2)
         : null;
 
       setPredictionResult(`${label} (${prob}%)`);
-      setRecommendation(data?.llm_suggestion || "No suggestion provided.");
+      setRecommendation(data?.llm_response || "No suggestion provided.");
     } catch (error) {
       console.error(error);
       setPredictionResult("Error predicting. Try again.");
       setRecommendation("No recommendation due to error.");
+    } finally {
+      setIsLoading(false);
     }
   };
-  return (
-    <>
-      <div className="p-6 space-y-6">
-        {/* Input Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Left section: Shipment Info */}
-          <div className="bg-white shadow-sm rounded-lg p-5 space-y-4 border">
-            <h2 className="font-bold text-lg text-gray-700 border-b pb-2">
-              Shipment Details
-            </h2>
 
+  return (
+    <div className="bg-gradient-to-br from-gray-50 to-gray-100 p-8 flex-1 overflow-y-auto">
+      {/* Main Grid Layout */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 max-w-[1600px] mx-auto">
+        {/* Left Column - Shipment Details */}
+        <div className="lg:col-span-4 bg-secondary-4 rounded-3xl p-6 shadow-lg border-secondary-color-3">
+          <div className="flex items-center gap-3 mb-6 pb-4 border-b-2 border-secondary-color-3-teal-300">
+            <div className="p-2 bg-secondary-3 rounded-lg">
+              <Truck className="w-6 h-6 text-white" />
+            </div>
+            <h2 className="text-xl font-bold color-secondary-3">Shipment details</h2>
+          </div>
+
+          <div className="space-y-4">
             <FormRow
               label="Payment Type"
               name="payment_type"
@@ -264,12 +396,18 @@ export default function PredictingPage() {
               options={orderStatuses}
             />
           </div>
-          {/* Right Section: Product Info */}
-          <div className="bg-white shadow-sm rounded-lg p-5 space-y-4 border">
-            <h2 className="font-bold text-lg text-gray-700 border-b pb-2">
-              Product & Cost
-            </h2>
+        </div>
 
+        {/* Products and Cost */}
+        <div className="lg:col-span-4 bg-secondary-4 rounded-3xl p-6 shadow-lg border-secondary-color-3">
+          <div className="flex items-center gap-3 mb-6 pb-4 border-b-2 border-secondary-color-3-teal-300">
+            <div className="p-2 bg-secondary-3 rounded-lg">
+              <DollarSign className="w-6 h-6 text-white" />
+            </div>
+            <h2 className="text-xl font-bold color-secondary-3">Products and cost</h2>
+          </div>
+
+          <div className="space-y-4">
             <FormRow
               label="Category Name"
               name="category_name"
@@ -289,10 +427,11 @@ export default function PredictingPage() {
             />
 
             <FormRow
-              label="Days for shipment (scheduled)"
+              label="Days For Shipment (Scheduled)"
               name="days_for_shipment_scheduled"
               value={formData.days_for_shipment_scheduled}
               onChange={handleChange}
+              type="number"
             />
 
             <FormRow
@@ -300,6 +439,8 @@ export default function PredictingPage() {
               name="order_item_discount_rate"
               value={formData.order_item_discount_rate}
               onChange={handleChange}
+              type="number"
+              step="0.01"
             />
 
             <FormRow
@@ -307,6 +448,8 @@ export default function PredictingPage() {
               name="order_item_product_price"
               value={formData.order_item_product_price}
               onChange={handleChange}
+              type="number"
+              step="0.01"
             />
 
             <FormRow
@@ -314,6 +457,7 @@ export default function PredictingPage() {
               name="order_item_quantity"
               value={formData.order_item_quantity}
               onChange={handleChange}
+              type="number"
             />
 
             <FormRow
@@ -321,49 +465,90 @@ export default function PredictingPage() {
               name="cost"
               value={formData.cost}
               onChange={handleChange}
+              type="number"
+              step="0.01"
             />
           </div>
-        </div>
 
-        {/* Predict Button */}
-        <div className="flex justify-center">
-          <button
-            className="bg-secondary-1 hover:bg-green-700 text-white px-10 py-3 rounded-md shadow transition"
-            onClick={handlePredict}
-          >
-            Predict
-          </button>
+          {/* Predict Button */}
+          <div className="mt-6 flex justify-center">
+            <button
+              onClick={handlePredict}
+              disabled={isLoading}
+              className="bg-gradient-to-r from-orange-400 to-orange-500 hover:from-orange-500 hover:to-orange-600 text-white px-12 py-3.5 rounded-full font-bold text-lg shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isLoading ? (
+                <>
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  Predicting...
+                </>
+              ) : (
+                <>
+                  <ClipboardCheck className="w-5 h-5" />
+                  Predict
+                </>
+              )}
+            </button>
+          </div>
         </div>
 
         {/* Results */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-4">
-          {/* Result */}
-          <div className="bg-white shadow rounded-lg p-5 border text-center">
-            <h3 className="text-lg font-semibold text-black mb-2">
-              Prediction Result
-            </h3>
-            <div
-              id="result"
-              className="border border-black rounded-md bg-gray-50 p-5 text-gray-500 break-all"
-            >
-              {predictionResult || "Awaiting prediction..."}
+        <div className="lg:col-span-4 space-y-6">
+          {/* Prediction Result */}
+          <div className="bg-secondary-4 rounded-3xl p-6 shadow-lg border-secondary-color-3">
+            <div className="flex items-center gap-3 mb-6 pb-4 border-b-2 border-secondary-color-3-teal-300">
+              <div className="p-2 bg-secondary-3 rounded-lg">
+                <ClipboardCheck className="w-6 h-6 text-white" />
+              </div>
+              <h2 className="text-xl font-bold color-secondary-3">Prediction Result</h2>
+            </div>
+
+            <div className="bg-white rounded-2xl p-6 h-[140px] flex items-center justify-center border-secondary-color-3">
+              {isLoading ? (
+                <div className="flex flex-col items-center gap-3">
+                  <Loader2 className="w-10 h-10 text-teal-600 animate-spin" />
+                  <p className="text-gray-500 text-sm">Analyzing...</p>
+                </div>
+              ) : (
+                <p className={`text-xl font-bold text-center ${
+                  predictionResult.includes("Late") 
+                    ? "text-red-600" 
+                    : predictionResult.includes("On Time") 
+                    ? "text-green-600" 
+                    : "text-gray-400"
+                }`}>
+                  {predictionResult || "Result will appear here"}
+                </p>
+              )}
             </div>
           </div>
 
-          {/* Recommendation */}
-          <div className="bg-white shadow rounded-lg p-5 border text-center">
-            <h3 className="text-lg text-black mb-2 font-semibold">
-              Recommendation
-            </h3>
-            <div
-              id="recommendation"
-              className="border border-black rounded-md bg-gray-50 p-5 min-h-[110px] text-gray-500 break-all"
-            >
-              {recommendation || "No recommendation yet..."}
+          {/* Recommendation*/}
+          <div className="bg-secondary-4 rounded-3xl p-6 shadow-lg border-secondary-color-3 h-[520px]">
+            <div className="flex items-center gap-3 mb-6 pb-4 border-b-2 border-secondary-color-3-teal-300">
+              <div className="p-2 bg-secondary-3 rounded-lg">
+                <Lightbulb className="w-6 h-6 text-white" />
+              </div>
+              <h2 className="text-xl font-bold color-secondary-3">Recommendation</h2>
+            </div>
+
+            <div className="bg-white rounded-2xl p-6 h-[380px] overflow-y-auto">
+              {isLoading ? (
+                <div className="flex items-center justify-center h-full">
+                  <Loader2 className="w-8 h-8 text-teal-600 animate-spin" />
+                </div>
+              ) : recommendation ? (
+                <FormattedRecommendation text={recommendation} />
+              ) : (
+                <div className="flex flex-col items-center justify-center h-full text-gray-400">
+                  <Lightbulb className="w-12 h-12 mb-3 opacity-30" />
+                  <p className="text-center text-sm">Recommendations will appear here after prediction</p>
+                </div>
+              )}
             </div>
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 }

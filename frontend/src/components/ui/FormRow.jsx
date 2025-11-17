@@ -1,14 +1,22 @@
-function FormRow({
+export default function FormRow({
   label,
   name,
+  select,
   value,
   onChange,
-  select = false,
-  options = [],
-}) {
+  options,
+  className = "", 
+  labelColor = "color-secondary-3", 
+  borderColor = "border-secondary-color-3",
+  bgColor = "bg-accent-4",
+}) 
+{
   return (
-    <div className="flex items-center justify-between text-black">
-      <label htmlFor={name} className="text-ml font-medium w-[35%]">
+    <div className={`flex flex-col ${className}`}>
+      <label
+        htmlFor={name}
+        className={`font-bold color-secondary-3 mb-2 ${labelColor}`}
+      >
         {label}
       </label>
 
@@ -18,12 +26,12 @@ function FormRow({
           name={name}
           value={value}
           onChange={onChange}
-          className="w-[55%] border border-gray-400 rounded-sm p-[2px]"
+          className={`border-2 ${borderColor} rounded-lg p-2 focus:ring-2 focus:border-secondary-color-3 ${bgColor} ${labelColor}`}
         >
           <option value="">Select {label}</option>
           {options.map((opt) => (
-            <option key={opt.value} value={opt.value}>
-              {opt.label}
+            <option key={opt.value || opt} value={opt.value || opt}>
+              {opt.label || opt}
             </option>
           ))}
         </select>
@@ -33,12 +41,9 @@ function FormRow({
           name={name}
           value={value}
           onChange={onChange}
-          type="text"
-          className="w-[55%] border border-gray-400 rounded-sm p-[2px]"
+          className={`border-2 ${borderColor} rounded-lg p-2 focus:ring-2 focus:border-secondary-color-3 ${bgColor} ${labelColor}`}
         />
       )}
     </div>
   );
 }
-
-export default FormRow;

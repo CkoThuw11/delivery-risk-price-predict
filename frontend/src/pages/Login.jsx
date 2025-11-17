@@ -1,145 +1,179 @@
-import React, { useState } from "react";
-import Input from "../components/ui/Input";
+import {useState } from "react";
 import { useNavigate } from "react-router-dom";
+import bgImage from "../assets/img/background.png"; 
+import { apiFetch } from "../utils/apiFetch";
 
-function LoginPage() {
-  const navigate = useNavigate();
+const Input = ({ className = "", ...props }) => {
+  return (
+    <input
+      {...props}
+      className={
+        "w-full px-5 py-3 rounded-lg bg-gray-200 text-gray-900 focus:outline-none focus:ring-2 focus:ring-orange-500 " +
+        className
+      }
+    />
+  );
+};
+
+export default function Login() {
   const [formData, setFormData] = useState({ user_or_email: "", password: "" });
   const [errors, setErrors] = useState({});
   const [loginError, setLoginError] = useState("");
-
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate()
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-    if (errors[name]) {
-      setErrors(prev => ({...prev, [name]: ""}));
-    }
+    if (errors[name]) setErrors((prev) => ({ ...prev, [name]: "" }));
     if (loginError) setLoginError("");
   };
-  
-  const handleSubmit = async (e) => {
-    try {
-      e.preventDefault();
-      setErrors({})
-      if (!formData.user_or_email.trim()) {
-        throw Error("Username/Email is required");
-      }
-      if (formData.password.length <= 3) {
-        throw Error("Password must be at least 3 characters");
-      }
 
-      console.log("Submitting...")
-      const response = await fetch("http://127.0.0.1:8000/user/login/", {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(formData)});
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setErrors({});
+    setLoginError("");
+
+    if (!formData.user_or_email.trim()) {
+      setErrors({ user_or_email: "Username/Email is required" });
+      return;
+    }
+    if (formData.password.length <= 3) {
+      setErrors({ password: "Password must be at least 4 characters" });
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      const response = await apiFetch("http://127.0.0.1:8000/user/login/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
 
       const data = await response.json();
-      
-      if (response.status === 200) {
-        console.log("User information: ", data);
-        const token = data.token;
-        localStorage.setItem("authToken", token);
-        navigate("/mainpage");
-      }
-      else{
-        console.log("Error");
-        setLoginError(data?.detail || "Login failed. Please check your inputs.");
-      }
-    } catch (error) {
-      console.error("Error fetching data: " + error)
-      const errorMessage = error.message;
-      let fieldName = "";
-      if (errorMessage.includes("Username/Email")) fieldName = "user_or_email";
-      else fieldName = "password";
 
-      if (fieldName) {
-        setErrors({[fieldName]: errorMessage});
+      if (response.ok) {
+        console.log("User information: ", data);
+
+        localStorage.setItem("authToken", data.access);
+        localStorage.setItem("role", data.user.role);
+        localStorage.setItem("refreshToken", data.refresh);
+
+        const role = data.user.role;
+          if (role === "user") navigate("/predicting");
+          else if (role === "admin") navigate("/mainpage");
+          else if (role === "trainer") navigate("/tableview");
+
+        } else {
+          setLoginError(data?.detail || "Login failed.");
+        }
+
+      } catch (err) {
+        console.error(err);
+        setLoginError("Something went wrong. Please try again later.");
+
+      } finally {
+        setLoading(false);
       }
-    }
-    
+
+
   };
 
   return (
-    <div className="min-h-screen flex bg-white">
-      {/* Left Section */}
-      <div className="flex-1 bg-accent-1 flex flex-col justify-center items-center p-8 rounded-r-2xl">
-        <h2 className="text-8xl font-bold color-primary-2 max-w-125 [text-shadow:2px_2px_4px_rgba(0,0,0,0.35)]">Welcome Back!</h2>
-        <div className="w-120 h-[1px] bg-primary-2 mt-4 "></div>
-        <div className="mt-5">
-          {/* Placeholder for image */}
-          <img
-            src="src/assets/img/logging-page-banner.png"
-            alt="illustration"
-            className="w-full"
-          />
-        </div>
-      </div>
+    <div
+      className="min-h-screen w-full flex items-center justify-end bg-cover bg-center font-sans"
+      style={{
+        backgroundImage: `url(${bgImage})`,
+      }}
+    >
+      {/* Right column*/}
+      <div className="w-full md:w-1/2 lg:w-2/5 bg-transparent h-full flex items-center">
+        <div className="w-full max-w-md mx-auto p-8 md:p-12">
+          <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">Login</h2>
 
-      {/* Right Section */}
-      <div className="flex-1 flex justify-center items-center bg-white p-8">
-        <div className="w-full max-w-md flex-col flex justify-center">
           {loginError && (
-            <p className="text-red-500 text-sm mt-2 text-center">{loginError}</p>
+            <div
+              className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg mb-4"
+              role="alert"
+            >
+              <span className="block sm:inline">{loginError}</span>
+            </div>
           )}
-          <h2 className="text-7xl self-center font-bold color-primary-1 mb-16">Login</h2>
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Email */}
+
+          <form onSubmit={handleSubmit} className="space-y-5">
+            {/* Email / Username */}
             <div>
-              <label className="block text-sm font-bold color-primary-1 mb-3">
+              <label className="block text-sm font-medium text-white mb-2">
                 Email/User Name
               </label>
               <Input
-                type="user_or_email"
+                type="text"
                 name="user_or_email"
                 value={formData.user_or_email}
                 onChange={handleChange}
-                placeholder="Enter your username/email"
-                className={`w-full px-4 py-2 border rounded-lg bg-gray-100 text-black ${errors.user_or_email ? 'border-red-500': ''} `}
+                placeholder="Enter your username or email"
+                className={errors.user_or_email ? "ring-2 ring-red-500" : ""}
+                aria-invalid={!!errors.user_or_email}
+                aria-describedby={errors.user_or_email ? "user-error" : undefined}
               />
               {errors.user_or_email && (
-                <p className ="text-red-500 text-xs mt-1">{errors.user_or_email}</p>
+                <p id="user-error" className="text-red-300 text-xs mt-1">
+                  {errors.user_or_email}
+                </p>
               )}
             </div>
+
             {/* Password */}
             <div>
-              <label className="block text-sm font-bold color-primary-1 mb-3">
+              <label className="block text-sm font-medium text-white mb-2">
                 Password
               </label>
-              <input
+              <Input
                 type="password"
                 name="password"
                 value={formData.password}
                 onChange={handleChange}
                 placeholder="Enter your password"
-                className={`w-full px-4 py-2 border rounded-lg bg-gray-100 text-black ${errors.password ? 'border-red-500': ''} `}
-                />
-                {errors.password && (
-                  <p className ="text-red-500 text-xs mt-1">{errors.password}</p>
-                )}
+                className={errors.password ? "ring-2 ring-red-500" : ""}
+                aria-invalid={!!errors.password}
+                aria-describedby={errors.password ? "pass-error" : undefined}
+              />
+              {errors.password && (
+                <p id="pass-error" className="text-red-300 text-xs mt-1">
+                  {errors.password}
+                </p>
+              )}
             </div>
-            {/* Forgot Password */}
+
+            {/* Forgot password */}
             <div className="text-right">
-              <a href="#" className="color-secondary-1 text-sm hover:color-primary-1 hover-color-primary-1">
+              <a href="#" className="text-sm color-accent-3 hover:text-green-100">
                 Forgot Password?
               </a>
             </div>
-            {/* Button */}
+
+            {/* Submit */}
             <button
               type="submit"
-              className="w-full bg-secondary-1 color-primary-2 py-3 rounded-lg text-lg font-semibold transition hover-bg-color-primary-1"
+              disabled={loading}
+              className="w-full bg-primary-3 text-white py-3 rounded-full text-lg font-semibold transition hover:text-green-100"
             >
-              Login
+              {loading ? "Logging in..." : "Login"}
             </button>
           </form>
-          {/* Register */}
-          <p className="mt-6 text-center text-sm text-gray-600">
+
+          <p className="mt-6 text-center text-sm font-bold text-[#CCCCCC]">
             Don’t have an account?{" "}
-            <a href="#" className="color-secondary-1 font-medium hover:underline hover-color-primary-1" onClick={(e) => {
-              e.preventDefault();
-              navigate("/register")}}>
+            <a
+              href="#"
+              className="font-medium color-accent-3 hover:text-green-100"
+              onClick={(e) => {
+                e.preventDefault();
+                console.log("Navigate to register");
+                navigate("/register");
+              }}
+            >
               Register Now
             </a>
           </p>
@@ -148,6 +182,3 @@ function LoginPage() {
     </div>
   );
 }
-
-export default LoginPage
-
