@@ -23,7 +23,14 @@
   --accent-color-2: #D0E7D2;
   --neutral-color-2: #C1CFA1;
 
-
+  --primary-color-3: #ED900E;
+  --secondary-color-3: #305241;
+  --accent-color-3: #5F9F9F;
+  
+  --primary-color-4: #ffffff;
+  --secondary-color-4: #D0E5DB;
+  --accent-color-4: #f1f7f4;
+  --neutral-color-4: #A6D8D8; 
   font-family: 'Inria Sans', Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
@@ -59,36 +66,9 @@ h1 {
   line-height: 1.1;
 }
 
-/* button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  cursor: pointer;
-  transition: border-color 0.25s;
-} */
 button:hover {
   cursor: pointer;
   opacity: 0.8;
-}
-/* button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
-} */
-
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
 }
 
 .color-primary-1 {
@@ -150,4 +130,69 @@ button:focus-visible {
 
 .hover-color-primary-1:hover {
   color: var(--primary-color-1)
+}
+
+.color-primary-3 {
+  color: var(--primary-color-3);
+}
+
+.bg-primary-3 {
+  background-color: var(--primary-color-3);
+}
+
+.border-primary-color-3 {
+  border: 1px solid var(--primary-color-3);
+}
+
+.hover\:bg-primary-3:hover {
+  background-color: var(--primary-color-3);
+}
+
+.color-secondary-3 {
+  color: var(--secondary-color-3);
+}
+
+.bg-secondary-3 {
+  background-color: var(--secondary-color-3);
+}
+
+.hover\:bg-secondary-3:hover {
+  background-color: var(--secondary-color-3);
+}
+
+.border-secondary-color-3 {
+  border: 1px solid var(--secondary-color-3);
+}
+
+.color-accent-3 {
+  color: var(--accent-color-3);
+}
+
+.border-primary-color-4 {
+  border: 1px solid var(--primary-color-4);
+}
+
+.color-secondary-4 {
+  color: var(--secondary-color-4);
+}
+
+.bg-secondary-4 {
+  background-color: var(--secondary-color-4);
+}
+
+.color-accent-4 {
+  color: var(--accent-color-4);
+}
+
+.bg-accent-4 {
+  background-color: var(--accent-color-4);
+}
+
+.color-neutral-4 {
+  color: var(--neutral-color-4);
+}
+
+.bg-neutral-4 {
+  background-color: var(--neutral-color-4);
+  opacity: 0.3;
 }
